@@ -80,7 +80,7 @@ public class GetLoanByIdQueryHandlerTests
         mockMediator
             .Setup(m => m.Send(It.IsAny<GetLoanByIdQuery>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync((LoanDetailsDto?)null); // Simulando inativo
+            .ReturnsAsync((LoanDetailsDto?)null);
 
         var controller = new LoansController(mockMediator.Object);
 

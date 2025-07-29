@@ -57,7 +57,7 @@ public class CreateLoanCommandHandler(IUnitOfWork unitOfWork, ILogger<CreateLoan
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to persist loan for applicant: {Applicant}", loan.ApplicantName);
-            return Result<Unit>.Failure(Error.Internal("Internal server error while saving loan."));
+            return Result<Unit>.Failure(Error.Internal(ErrorMessages.LoanSaveInternalError));
         }
     }
 }

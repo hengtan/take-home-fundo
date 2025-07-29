@@ -1,5 +1,6 @@
 using Fundo.Application.Common.Errors;
 using Fundo.Application.Common.Results;
+using Fundo.Application.Errors.ErrorsMessages;
 using Fundo.Application.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -36,16 +37,16 @@ public class RegisterPaymentCommandHandler(
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error while registering payment for LoanId: {LoanId}", request.LoanId);
-            return Result<Unit>.Failure(Error.Internal("Unexpected error while registering payment."));
+            return Result<Unit>.Failure(Error.Internal(ErrorMessages.UnexpectedErrorOnRegistration));
         }
     }
 
-    private async Task<Fundo.Domain.Entities.Loan?> GetLoanAsync(Guid loanId, CancellationToken cancellationToken)
+    private async Task<Domain.Entities.Loan?> GetLoanAsync(Guid loanId, CancellationToken cancellationToken)
     {
         return await unitOfWork.LoanRepository.GetByIdAsync(loanId, cancellationToken);
     }
 
-    private static void RegisterPayment(Fundo.Domain.Entities.Loan loan, decimal amount)
+    private static void RegisterPayment(Domain.Entities.Loan loan, decimal amount)
     {
         loan.RegisterPayment(amount);
     }
