@@ -17,7 +17,6 @@ public class LoanManagementControllerTests(CustomWebApplicationFactory<Program> 
 {
     private readonly HttpClient _client = factory.CreateClient();
 
-
     [Fact]
     public async Task Get_Balances_Should_Return_Expected_Result()
     {
@@ -198,5 +197,46 @@ public class LoanManagementControllerTests(CustomWebApplicationFactory<Program> 
         var response = await _client.GetAsync($"/loans/{invalidId}");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task GetAll_ShouldReturnLoans_WhenExists()
+    {
+        if (!DatabaseHelper.IsDatabaseAvailable())
+            return;
+
+        var loan = new
+        {
+            amount = 1000m,
+            currentBalance = 1000m,
+            applicantName = "Integration User"
+        };
+
+        var content = new StringContent(JsonSerializer.Serialize(loan), Encoding.UTF8, "application/json");
+        var postResponse = await _client.PostAsync("/loans", content);
+        postResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var response = await _client.GetAsync("/loans");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var body = await response.Content.ReadAsStringAsync();
+
+        using var json = JsonDocument.Parse(body);
+        json.RootElement.ValueKind.Should().Be(JsonValueKind.Array);
+        json.RootElement.GetArrayLength().Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task GetAll_Should_Return_Correct_Status_Based_On_Data()
+    {
+        if (!DatabaseHelper.IsDatabaseAvailable())
+            return;
+
+        var response = await _client.GetAsync("/loans");
+
+        if (await DatabaseHelper.HasAnyLoanAsync(factory))
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        else
+            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
     }
 }

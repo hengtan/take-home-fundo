@@ -51,7 +51,7 @@ public class LoansController(IMediator mediator) : ControllerBase
     public async Task<ActionResult<List<LoanListItemDto>>> GetAll()
     {
         var loans = await mediator.Send(new GetAllLoansQuery());
-        return loans.Count != 0 ? Ok(loans) : NoContent();
+        return loans.Any() ? Ok(loans) : NoContent();
     }
 
     [HttpPost("{id:guid}/payment")]

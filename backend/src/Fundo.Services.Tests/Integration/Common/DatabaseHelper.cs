@@ -1,5 +1,10 @@
+using System.Threading.Tasks;
+using Fundo.Infrastructure.Persistence;
 using Fundo.Services.Tests.Helpers.Config;
+using Fundo.Services.Tests.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fundo.Services.Tests.Integration.Common;
 
@@ -19,5 +24,12 @@ public static class DatabaseHelper
         {
             return false;
         }
+    }
+    public static async Task<bool> HasAnyLoanAsync(CustomWebApplicationFactory<Program> factory)
+    {
+        using var scope = factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<LoanDbContext>();
+
+        return await context.Loans.AnyAsync();
     }
 }
