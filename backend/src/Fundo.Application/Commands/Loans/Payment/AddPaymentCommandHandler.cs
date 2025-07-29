@@ -13,6 +13,6 @@ public class AddPaymentCommandHandler(ILoanRepository loanRepository,
 
         loan.RegisterPayment(request.Amount);
 
-        await unitOfWork.CommitAsync(cancellationToken);
+        await unitOfWork.CompleteAsync(cancellationToken);
     }
 }

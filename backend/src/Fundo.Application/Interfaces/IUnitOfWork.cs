@@ -2,5 +2,7 @@ namespace Fundo.Application.Interfaces;
 
 public interface IUnitOfWork
 {
-    Task CommitAsync(CancellationToken cancellationToken);
+    ILoanRepository LoanRepository { get; }
+
+    Task<int> CompleteAsync(CancellationToken cancellationToken);
 }
