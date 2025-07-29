@@ -1,21 +1,18 @@
-using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Fundo.Applications.WebApi;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace Fundo.Services.Tests.Integration
+namespace Fundo.Services.Tests.Integration.Fundo.Applications.WebApi.Controllers
 {
-    public class LoanManagementControllerTests : IClassFixture<WebApplicationFactory<Fundo.Applications.WebApi.Startup>>
+    public class LoanManagementControllerTests(WebApplicationFactory<global::Fundo.Applications.WebApi.Startup> factory)
+        : IClassFixture<WebApplicationFactory<Startup>>
     {
-        private readonly HttpClient _client;
-
-        public LoanManagementControllerTests(WebApplicationFactory<Fundo.Applications.WebApi.Startup> factory)
+        private readonly HttpClient _client = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
-            _client = factory.CreateClient(new WebApplicationFactoryClientOptions
-            {
-                AllowAutoRedirect = false
-            });
-        }
+            AllowAutoRedirect = false
+        });
 
         [Fact]
         public async Task GetBalances_ShouldReturnExpectedResult()

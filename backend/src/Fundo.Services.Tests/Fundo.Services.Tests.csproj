@@ -24,6 +24,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Fundo.Applications.WebApi\Fundo.Applications.WebApi.csproj" />
+		<ProjectReference Include="..\Fundo.Application\Fundo.Application.csproj" />
 	</ItemGroup>
 
 </Project>

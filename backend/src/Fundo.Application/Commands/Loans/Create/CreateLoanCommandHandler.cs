@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Fundo.Application.Commands.Loans.Create;
 
-public class CreateLoanCommandHandler(ILoanRepository loanRepository) : IRequestHandler<CreateLoanCommand, Guid>
+public class CreateLoanCommandHandler(IUnitOfWork unitOfWork) : IRequestHandler<CreateLoanCommand, Guid>
 {
     public async Task<Guid> Handle(CreateLoanCommand request, CancellationToken cancellationToken)
     {
@@ -14,7 +14,8 @@ public class CreateLoanCommandHandler(ILoanRepository loanRepository) : IRequest
             applicantName: request.ApplicantName
         );
 
-        await loanRepository.AddAsync(loan, cancellationToken);
+        await unitOfWork.LoanRepository.AddAsync(loan, cancellationToken);
+        await unitOfWork.CompleteAsync(cancellationToken);
 
         return loan.Id;
     }
