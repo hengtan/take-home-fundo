@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -8,10 +9,9 @@ using FluentAssertions;
 using Fundo.Application.Errors.ErrorsMessages;
 using Fundo.Services.Tests.Integration.Common;
 using Fundo.Tests.Infrastructure;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Xunit;
 
-namespace Fundo.Tests.Integration.Fundo.Api.Controllers;
+namespace Fundo.Services.Tests.Integration.Fundo.Api.Controllers;
 
 public class LoanManagementControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
 {
@@ -245,5 +245,128 @@ public class LoanManagementControllerTests : IClassFixture<CustomWebApplicationF
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         else
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+    [Fact]
+    public async Task RegisterPayment_Should_Return_NoContent_When_Valid()
+    {
+        if (!DatabaseHelper.IsDatabaseAvailable()) return;
+
+        var createLoan = new
+        {
+            amount = 2000m,
+            currentBalance = 2000m,
+            applicantName = "Pagador"
+        };
+
+        var content = new StringContent(JsonSerializer.Serialize(createLoan), Encoding.UTF8, "application/json");
+        var response = await _client.PostAsync("/loans", content);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var body = await response.Content.ReadAsStringAsync();
+        var loanId = JsonDocument.Parse(body).RootElement.GetGuid();
+
+        var payment = new { amount = 1000m };
+        var paymentContent = new StringContent(JsonSerializer.Serialize(payment), Encoding.UTF8, "application/json");
+
+        var payResponse = await _client.PostAsync($"/loans/{loanId}/payment", paymentContent);
+
+        payResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+
+    [Fact]
+    public async Task RegisterPayment_Should_Return_BadRequest_When_Loan_Not_Found()
+    {
+        if (!DatabaseHelper.IsDatabaseAvailable()) return;
+
+        var payment = new { amount = 1000m };
+        var content = new StringContent(JsonSerializer.Serialize(payment), Encoding.UTF8, "application/json");
+
+        var invalidLoanId = Guid.NewGuid();
+        var response = await _client.PostAsync($"/loans/{invalidLoanId}/payment", content);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var body = await response.Content.ReadAsStringAsync();
+        using var json = JsonDocument.Parse(body);
+        json.RootElement
+            .GetProperty("error")
+            .GetProperty("message")
+            .GetString()
+            .Should().Be("Loan not found.");
+    }
+
+    [Fact]
+    public async Task RegisterPayment_Should_Return_BadRequest_When_Amount_Is_Zero()
+    {
+        if (!DatabaseHelper.IsDatabaseAvailable()) return;
+
+        var createLoan = new
+        {
+            amount = 2000m,
+            currentBalance = 2000m,
+            applicantName = "Zero"
+        };
+
+        var content = new StringContent(JsonSerializer.Serialize(createLoan), Encoding.UTF8, "application/json");
+        var response = await _client.PostAsync("/loans", content);
+        var body = await response.Content.ReadAsStringAsync();
+        var loanId = JsonDocument.Parse(body).RootElement.GetGuid();
+
+        var payment = new { amount = 0m };
+        var paymentContent = new StringContent(JsonSerializer.Serialize(payment), Encoding.UTF8, "application/json");
+
+        var payResponse = await _client.PostAsync($"/loans/{loanId}/payment", paymentContent);
+
+        payResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var payBody = await payResponse.Content.ReadAsStringAsync();
+        payBody.Should().Contain("greater than zero");
+    }
+
+    [Fact]
+    public async Task RegisterPayment_Should_Return_BadRequest_When_Body_Is_Empty()
+    {
+        if (!DatabaseHelper.IsDatabaseAvailable()) return;
+
+        var response = await _client.PostAsync($"/loans/{Guid.NewGuid()}/payment", new StringContent("", Encoding.UTF8, "application/json"));
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        var body = await response.Content.ReadAsStringAsync();
+        body.Should().Contain("A non-empty request body is required");
+    }
+
+    [Fact]
+    public async Task RegisterPayment_Should_Return_BadRequest_When_Amount_Is_Missing()
+    {
+        if (!DatabaseHelper.IsDatabaseAvailable()) return;
+
+        var createLoan = new
+        {
+            amount = 1500m,
+            currentBalance = 1500m,
+            applicantName = "Teste Falho"
+        };
+
+        var content = new StringContent(JsonSerializer.Serialize(createLoan), Encoding.UTF8, "application/json");
+        var response = await _client.PostAsync("/loans", content);
+        var body = await response.Content.ReadAsStringAsync();
+        var loanId = JsonDocument.Parse(body).RootElement.GetGuid();
+
+        var invalidPayload = new { }; // amount ausente
+        var invalidContent = new StringContent(JsonSerializer.Serialize(invalidPayload), Encoding.UTF8, "application/json");
+
+        var payResponse = await _client.PostAsync($"/loans/{loanId}/payment", invalidContent);
+
+        payResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var responseBody = await payResponse.Content.ReadAsStringAsync();
+        using var json = JsonDocument.Parse(responseBody);
+        json.RootElement
+            .GetProperty("errors")
+            .GetProperty("Amount")
+            .EnumerateArray()
+            .First()
+            .GetString()
+            .Should().Be("Payment amount must be greater than zero.");
     }
 }
