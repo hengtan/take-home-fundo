@@ -34,21 +34,25 @@ public class GetLoanByIdQueryHandlerTests
     }
 
     [Fact]
-    public async Task GetById_ShouldReturnNotFound_WhenLoanDoesNotExist()
+    public async Task GetById_Should_Return_NotFound_When_Loan_Does_Not_Exist()
     {
+        // Arrange
         var loanId = Guid.NewGuid();
-
         var mockMediator = new Mock<IMediator>();
-        mockMediator.Setup(
-                m => m.Send(It.Is<GetLoanByIdQuery>(
-                    q => q.Id == loanId), CancellationToken.None))
+
+        mockMediator
+            .Setup(m =>
+                m.Send(It.Is<GetLoanByIdQuery>(q => q.Id == loanId),
+                    It.IsAny<CancellationToken>()))
             .ReturnsAsync((LoanDetailsDto?)null);
 
         var controller = new LoansController(mockMediator.Object);
 
+        // Act
         var result = await controller.GetById(loanId);
 
-        result.Result.Should().BeOfType<NotFoundResult>();
+        // Assert
+        result.Result.Should().BeOfType<NotFoundObjectResult>();
     }
 
     [Fact]
@@ -67,18 +71,23 @@ public class GetLoanByIdQueryHandlerTests
     }
 
     [Fact]
-    public async Task GetById_ShouldReturnNotFound_WhenLoanIsInactive()
+    public async Task GetById_Should_Return_NotFound_When_Loan_Is_Inactive()
     {
+        // Arrange
         var loanId = Guid.NewGuid();
-
         var mockMediator = new Mock<IMediator>();
-        mockMediator.Setup(m => m.Send(It.IsAny<GetLoanByIdQuery>(), default))
-            .ReturnsAsync((LoanDetailsDto?)null); // Deletado, inativo etc.
+
+        mockMediator
+            .Setup(m => m.Send(It.IsAny<GetLoanByIdQuery>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((LoanDetailsDto?)null); // Simulando inativo
 
         var controller = new LoansController(mockMediator.Object);
 
+        // Act
         var result = await controller.GetById(loanId);
 
-        result.Result.Should().BeOfType<NotFoundResult>();
+        // Assert
+        result.Result.Should().BeOfType<NotFoundObjectResult>();
     }
 }

@@ -1,23 +1,34 @@
 using Fundo.Application.DTOs;
 using Fundo.Application.Interfaces;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Fundo.Application.Queries.Loan.List;
 
-
-public class GetAllLoansQueryHandler(ILoanRepository loanRepository)
+public class GetAllLoansQueryHandler(ILoanRepository loanRepository, ILogger<GetAllLoansQueryHandler> logger)
     : IRequestHandler<GetAllLoansQuery, List<LoanListItemDto>>
 {
     public async Task<List<LoanListItemDto>> Handle(GetAllLoansQuery request, CancellationToken cancellationToken)
     {
+        logger.LogInformation("Fetching all loans");
+
         var loans = await loanRepository.GetAllAsync(cancellationToken);
 
-        return loans.Select(loan => new LoanListItemDto
+        var dtos = loans.Select(MapToListItemDto).ToList();
+
+        logger.LogInformation("{Count} loans fetched successfully", dtos.Count);
+
+        return dtos;
+    }
+
+    private static LoanListItemDto MapToListItemDto(Domain.Entities.Loan loan)
+    {
+        return new LoanListItemDto
         {
             Id = loan.Id,
             ApplicantName = loan.ApplicantName,
             CurrentBalance = loan.CurrentBalance,
-            Status = loan.Status.ToString()
-        }).ToList();
+            Status = loan.Status.ToString("G")
+        };
     }
 }

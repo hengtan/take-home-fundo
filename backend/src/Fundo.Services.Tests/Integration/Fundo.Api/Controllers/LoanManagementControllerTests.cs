@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Fundo.Application.Errors.ErrorsMessages;
 using Fundo.Services.Tests.Integration.Common;
 using Fundo.Services.Tests.Infrastructure;
 using Xunit;
@@ -48,7 +49,7 @@ public class LoanManagementControllerTests(CustomWebApplicationFactory<Program> 
     }
 
     [Fact]
-    public async Task PostLoan_ShouldReturn_BadRequest_WhenAmountIsNegative()
+    public async Task PostLoan_ShouldReturn_BadRequest_When_Amount_Is_Negative()
     {
         // Arrange
         if (!DatabaseHelper.IsDatabaseAvailable())
@@ -70,7 +71,7 @@ public class LoanManagementControllerTests(CustomWebApplicationFactory<Program> 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
-        responseBody.Should().Contain("Loan amount must be greater than zero.");
+        responseBody.Should().Contain(ErrorMessages.LoanAmountAndBalanceMustBePositive);
     }
 
     [Fact]

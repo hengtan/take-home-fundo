@@ -15,11 +15,25 @@ namespace Fundo.API.Controllers.Loans;
 public class LoansController(IMediator mediator) : ControllerBase
 {
     [HttpPost]
-    [HttpPost]
-    public async Task<IActionResult> Create(CreateLoanCommand command)
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Create([FromBody] CreateLoanCommand command)
     {
-        var created = await mediator.Send(command);
-        return CreatedAtAction(nameof(GetById), new { id = created }, created);
+        var result = await mediator.Send(command);
+
+        if (result.IsFailure)
+        {
+            return result.Error!.Code switch
+            {
+                "Validation" => BadRequest(result.Error.Message),
+                "Conflict" => Conflict(result.Error.Message),
+                "NotFound" => NotFound(result.Error.Message),
+                _ => StatusCode(500, result.Error.Message)
+            };
+        }
+
+        return Ok(result.Value);
     }
 
     [HttpGet("{id:guid}")]
