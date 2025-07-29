@@ -16,15 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Remove="DTOs\**" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <EmbeddedResource Remove="DTOs\**" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="DTOs\**" />
+      <Compile Include="DTOs\ClientAuthRequest.cs" />
     </ItemGroup>
 
 </Project>
