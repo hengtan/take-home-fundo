@@ -1,10 +1,12 @@
 using Fundo.API.Extensions;
-using Fundo.Infrastructure;
+using Fundo.Application.DependencyInjection;
+using Fundo.Infrastructure.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Services
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication();
 builder.Services.AddControllers();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddSwaggerDocumentation();

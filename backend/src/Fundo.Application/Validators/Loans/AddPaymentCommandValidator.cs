@@ -1,6 +1,7 @@
 using FluentValidation;
+using Fundo.Application.Commands.Loans.Payment;
 
-namespace Fundo.Application.Commands.Loans.Payment;
+namespace Fundo.Application.Validators.Loans;
 
 public class AddPaymentCommandValidator : AbstractValidator<AddPaymentCommand>
 {

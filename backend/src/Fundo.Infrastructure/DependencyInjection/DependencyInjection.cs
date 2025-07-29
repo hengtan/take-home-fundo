@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Fundo.Infrastructure;
+namespace Fundo.Infrastructure.DependencyInjection;
 
 public static class DependencyInjection
 {
