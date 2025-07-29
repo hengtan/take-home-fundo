@@ -17,25 +17,16 @@ public class LoanDbContext(DbContextOptions<LoanDbContext> options) : DbContext(
             entity.HasKey(e => e.Id);
 
             entity.Property(e => e.Amount)
-                .HasField("_amount")
-                .UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction)
                 .IsRequired();
 
             entity.Property(e => e.CurrentBalance)
-                .HasField("_currentBalance")
-                .UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction)
                 .IsRequired();
 
             entity.Property(e => e.ApplicantName)
-                .HasField("_applicantName")
-                .UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction)
                 .HasMaxLength(150)
                 .IsRequired();
 
             entity.Property(e => e.Status)
-                .HasConversion<string>()
-                .HasField("_status")
-                .UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction)
                 .IsRequired();
 
             entity.HasData(
@@ -45,7 +36,7 @@ public class LoanDbContext(DbContextOptions<LoanDbContext> options) : DbContext(
                     Amount = 1500m,
                     CurrentBalance = 500m,
                     ApplicantName = "Maria Silva",
-                    Status = LoanStatus.Active.ToString()
+                    Status = LoanStatus.Active
                 },
                 new
                 {
@@ -53,7 +44,7 @@ public class LoanDbContext(DbContextOptions<LoanDbContext> options) : DbContext(
                     Amount = 1000m,
                     CurrentBalance = 0m,
                     ApplicantName = "João Souza",
-                    Status = LoanStatus.Paid.ToString()
+                    Status = LoanStatus.Paid
                 }
             );
         });

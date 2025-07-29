@@ -93,7 +93,7 @@ public class CreateLoanCommandHandlerTests
         var handler = new CreateLoanCommandHandler(mockUow.Object);
 
         Func<Task> act = async () => await handler.Handle(command, CancellationToken.None);
-        await act.Should().ThrowAsync<Exception>().WithMessage("Error");
+        await act.Should().ThrowAsync<Exception>().WithMessage("Erro saving loan");
     }
 
     [Fact]

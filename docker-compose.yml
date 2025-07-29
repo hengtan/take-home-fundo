@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "yourStrong(!)Password"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+
+  backend:
+    platform: linux/amd64
+    build:
+      context: ./backend/src
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5000"
+    depends_on:
+      - db
+    environment:
+      ConnectionStrings__Default: "Server=db;Database=LoanDb;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True"
+      Jwt__Key: "super-strong-secret-key-for-testing-123!"
+      Jwt__Issuer: "FundoIssuer"
+      Jwt__Audience: "FundoAudience"
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+
+  tests:
+    build:
+      context: ./backend/src
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    volumes:
+      - ./backend/src/Fundo.Services.Tests/appsettings.test.json:/app/appsettings.test.json
+    command: ["dotnet", "test", "Fundo.Services.Tests/Fundo.Services.Tests.csproj", "--logger", "trx"]
+
+volumes:
+  mssql_data:

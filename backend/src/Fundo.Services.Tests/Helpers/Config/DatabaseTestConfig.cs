@@ -5,16 +5,15 @@ namespace Fundo.Services.Tests.Helpers.Config;
 
 public static class DatabaseTestConfig
 {
-    private static readonly IConfigurationRoot _config;
+    private static IConfiguration Configuration { get; }
 
     static DatabaseTestConfig()
     {
-        _config = new ConfigurationBuilder()
+        Configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
-            .AddJsonFile("appsettings.test.json", optional: false)
+            .AddJsonFile("appsettings.test.json", optional: false, reloadOnChange: true)
             .Build();
     }
 
-    public static string ConnectionString =>
-        _config.GetConnectionString("Default")!;
+    public static string ConnectionString => Configuration.GetConnectionString("Default");
 }

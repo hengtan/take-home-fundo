@@ -1,3 +1,5 @@
+using Fundo.API.Middlewares;
+
 namespace Fundo.API.Extensions;
 
 public static class ApplicationBuilderExtensions
@@ -9,6 +11,7 @@ public static class ApplicationBuilderExtensions
             app.UseSwaggerDocumentation();
         }
 
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
