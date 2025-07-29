@@ -1,21 +1,24 @@
 using FluentValidation;
 using Fundo.Application.Commands.Loans.Create;
+using Fundo.Application.Validators.Common;
+using Fundo.Domain.Errors;
 
 namespace Fundo.Application.Validators.Loans;
 
-public class CreateLoanCommandValidator : AbstractValidator<CreateLoanCommand>
+public abstract class CreateLoanCommandValidator : AbstractValidator<CreateLoanCommand>
 {
-    public CreateLoanCommandValidator()
+    protected CreateLoanCommandValidator()
     {
         RuleFor(x => x.Amount)
-            .GreaterThan(0).WithMessage("Loan amount must be greater than zero.");
+            .MustBePositive();
 
         RuleFor(x => x.CurrentBalance)
-            .GreaterThanOrEqualTo(0).WithMessage("Current balance must be zero or more.")
-            .LessThanOrEqualTo(x => x.Amount).WithMessage("Current balance cannot exceed amount.");
+            .GreaterThanOrEqualTo(0)
+            .WithMessage(ValidationMessages.GreaterOrEqualZero)
+            .LessThanOrEqualTo(x => x.Amount)
+            .WithMessage(ValidationMessages.CurrentBalanceCannotExceedAmount);
 
         RuleFor(x => x.ApplicantName)
-            .NotEmpty().WithMessage("Applicant name is required.")
-            .MaximumLength(100);
+            .RequiredWithMaxLength(100);
     }
 }
