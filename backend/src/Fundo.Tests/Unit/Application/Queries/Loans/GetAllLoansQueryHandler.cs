@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Xunit;
 
-namespace Fundo.Services.Tests.Unit.Application.Queries.Loans;
+namespace Fundo.Tests.Unit.Application.Queries.Loans;
 
 public class GetAllLoansQueryHandler
 {

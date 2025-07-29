@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Fundo.Infrastructure.DependencyInjection;
 
-public static class DependencyInjection
+public static class AddApplicationServices
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
     {

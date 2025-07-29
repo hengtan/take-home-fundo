@@ -5,7 +5,7 @@ using System.Text;
 using Fundo.Infrastructure.Security;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Fundo.Services.Tests.Helpers;
+namespace Fundo.Tests.Helpers;
 
 public static class JwtTokenGenerator
 {

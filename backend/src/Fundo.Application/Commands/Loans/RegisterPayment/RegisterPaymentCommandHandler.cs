@@ -15,9 +15,9 @@ public class RegisterPaymentCommandHandler(
 {
     public async Task<Result<Unit>> Handle(RegisterPaymentCommand request, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Attempting to register payment for LoanId: {LoanId}", request.LoanId);
+        logger.LogInformation("Starting payment registration for LoanId: {LoanId}", request.LoanId);
 
-        var loan = await GetLoanAsync(request.LoanId, cancellationToken);
+        var loan = await unitOfWork.LoanRepository.GetByIdAsync(request.LoanId, cancellationToken);
         if (loan is null)
         {
             logger.LogWarning("Loan not found: {LoanId}", request.LoanId);
@@ -26,7 +26,7 @@ public class RegisterPaymentCommandHandler(
 
         try
         {
-            RegisterPayment(loan, request.Amount);
+            loan.RegisterPayment(request.Amount);
             await unitOfWork.CompleteAsync(cancellationToken);
 
             logger.LogInformation("Payment of {Amount} registered successfully for LoanId: {LoanId}",
@@ -34,20 +34,20 @@ public class RegisterPaymentCommandHandler(
 
             return Result<Unit>.Success(Unit.Value);
         }
+        catch (ArgumentException ex)
+        {
+            logger.LogWarning(ex, "Validation error while registering payment for LoanId: {LoanId}", request.LoanId);
+            return Result<Unit>.Failure(Error.Validation(ex.Message));
+        }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarning(ex, "Invalid operation while registering payment for LoanId: {LoanId}", request.LoanId);
+            return Result<Unit>.Failure(Error.Conflict(ex.Message));
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unexpected error while registering payment for LoanId: {LoanId}", request.LoanId);
             return Result<Unit>.Failure(Error.Internal(ErrorMessages.UnexpectedErrorOnRegistration));
         }
-    }
-
-    private async Task<Domain.Entities.Loan?> GetLoanAsync(Guid loanId, CancellationToken cancellationToken)
-    {
-        return await unitOfWork.LoanRepository.GetByIdAsync(loanId, cancellationToken);
-    }
-
-    private static void RegisterPayment(Domain.Entities.Loan loan, decimal amount)
-    {
-        loan.RegisterPayment(amount);
     }
 }

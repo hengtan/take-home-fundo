@@ -3,14 +3,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Fundo.Application.Commands.Loans.Create;
-using Fundo.Application.Common.Results;
 using Fundo.Application.Interfaces;
 using Fundo.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
-namespace Fundo.Services.Tests.Unit.Application.Commands.Loans;
+namespace Fundo.Tests.Unit.Application.Commands.Loans;
 
 public class CreateLoanCommandHandlerTests
 {

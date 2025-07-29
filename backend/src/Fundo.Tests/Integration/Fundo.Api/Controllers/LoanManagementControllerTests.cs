@@ -6,17 +6,23 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Fundo.Application.Errors.ErrorsMessages;
-using Fundo.Services.Tests.Infrastructure;
 using Fundo.Services.Tests.Integration.Common;
+using Fundo.Tests.Infrastructure;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Xunit;
 
-namespace Fundo.Services.Tests.Integration.Fundo.Api.Controllers;
+namespace Fundo.Tests.Integration.Fundo.Api.Controllers;
 
-public class LoanManagementControllerTests(CustomWebApplicationFactory<Program> factory)
-    : IClassFixture<CustomWebApplicationFactory<Program>>
+public class LoanManagementControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
 {
-    private readonly HttpClient _client = factory.CreateClient();
+    private readonly HttpClient _client;
+    private readonly CustomWebApplicationFactory<Program> _factory;
+
+    public LoanManagementControllerTests(CustomWebApplicationFactory<Program> factory)
+    {
+        _factory = factory;
+        _client = factory.CreateClient();
+    }
 
     [Fact]
     public async Task Get_Balances_Should_Return_Expected_Result()
@@ -235,7 +241,7 @@ public class LoanManagementControllerTests(CustomWebApplicationFactory<Program> 
 
         var response = await _client.GetAsync("/loans");
 
-        if (await DatabaseHelper.HasAnyLoanAsync(factory))
+        if (await DatabaseHelper.HasAnyLoanAsync(_factory))
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         else
             response.StatusCode.Should().Be(HttpStatusCode.NoContent);

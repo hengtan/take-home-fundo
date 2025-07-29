@@ -3,6 +3,7 @@ using Fundo.Application.Commands.Loans.RegisterPayment;
 using Fundo.Application.DTOs;
 using Fundo.Application.Queries.Loan.GetById;
 using Fundo.Application.Queries.Loan.List;
+using Fundo.Application.RegisterPaymentRequest;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -55,12 +56,15 @@ public class LoansController(IMediator mediator) : ControllerBase
     }
 
     [HttpPost("{id:guid}/payment")]
-    public async Task<IActionResult> RegisterPayment(Guid id, RegisterPaymentCommand command)
+    public async Task<IActionResult> RegisterPayment(Guid id, [FromBody] RegisterPaymentRequest request)
     {
-        if (id != command.LoanId)
-            return BadRequest(new { error = "Loan ID mismatch." });
+        var command = new RegisterPaymentCommand(id, request.Amount);
 
-        await mediator.Send(command);
+        var result = await mediator.Send(command);
+
+        if (result.IsFailure)
+            return BadRequest(new { error = result.Error });
+
         return NoContent();
     }
 }

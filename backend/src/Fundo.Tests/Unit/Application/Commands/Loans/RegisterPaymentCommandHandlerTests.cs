@@ -1,6 +1,6 @@
-namespace Fundo.Services.Tests.Unit.Application.Commands.Loans;
+namespace Fundo.Tests.Unit.Application.Commands.Loans;
 
 public class RegisterPaymentCommandHandlerTests
 {
-    
+
 }

@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Fundo.Infrastructure.Persistence;
 using Fundo.Services.Tests.Helpers.Config;
-using Fundo.Services.Tests.Infrastructure;
+using Fundo.Tests.Infrastructure;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

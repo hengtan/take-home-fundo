@@ -1,31 +1,45 @@
 using Fundo.API.Extensions;
+using Fundo.Application.DependencyInjection;
 using Fundo.Infrastructure.DependencyInjection;
+using Fundo.Infrastructure.Persistence;
 using Fundo.Infrastructure.Security;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// --------------------------------------------------
+// Configuration & Environment
+// --------------------------------------------------
 var env = builder.Environment;
-
 var config = builder.Configuration;
-builder.Services.Configure<JwtSettings>(config.GetSection("Jwt"));
-builder.Services.AddInfrastructure(config);
-builder.Services.AddApplicationServices();
 
+// --------------------------------------------------
+// Service Registrations
+// --------------------------------------------------
+builder.Services.Configure<JwtSettings>(config.GetSection("Jwt"));
+
+builder.Services.AddInfrastructure(config);
+builder.Services.AddApplication();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerExtension();
 builder.Services.AddAuthenticationExtension(config);
 
+// CORS Policy
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
     });
 });
 
 var app = builder.Build();
 
+// --------------------------------------------------
+// Middleware Pipeline
+// --------------------------------------------------
 app.UseExceptionHandling();
 app.UseHttpsRedirection();
 app.UseRouting();
@@ -37,4 +51,22 @@ app.UseAuthorization();
 app.MapControllers();
 app.UseSwaggerExtension(env);
 
+// --------------------------------------------------
+// Apply EF Core Migrations Automatically
+// --------------------------------------------------
+ApplyMigrations(app);
 app.Run();
+
+
+// --------------------------------------------------
+// Helpers
+// --------------------------------------------------
+static void ApplyMigrations(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<LoanDbContext>();
+    dbContext.Database.Migrate();
+}
+
+// Needed for testing project reference
+public partial class Program { }
