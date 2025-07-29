@@ -83,16 +83,21 @@ public class LoanManagementControllerTests(CustomWebApplicationFactory<Program> 
         {
             amount = 1000m,
             currentBalance = 1000m,
-            applicantName = (string)null
+            applicantName = (string?)null
         };
 
         var content = new StringContent(JsonSerializer.Serialize(loan), Encoding.UTF8, "application/json");
 
         var response = await _client.PostAsync("/loans", content);
-        var body = await response.Content.ReadAsStringAsync();
+        var responseBody = await response.Content.ReadAsStringAsync();
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        body.Should().Contain("applicantName");
+
+        using var json = JsonDocument.Parse(responseBody);
+        var root = json.RootElement;
+
+        root.GetProperty("errors").TryGetProperty("ApplicantName", out var applicantErrors).Should().BeTrue("Expected ApplicantName validation error");
+        applicantErrors[0].GetString().Should().Be("The ApplicantName field is required.");
     }
 
     [Fact]
@@ -104,9 +109,19 @@ public class LoanManagementControllerTests(CustomWebApplicationFactory<Program> 
         var content = new StringContent("", Encoding.UTF8, "application/json");
 
         var response = await _client.PostAsync("/loans", content);
-        var body = await response.Content.ReadAsStringAsync();
+        var responseBody = await response.Content.ReadAsStringAsync();
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        body.Should().Contain("The input does not contain any JSON tokens");
+
+        using var json = JsonDocument.Parse(responseBody);
+        var root = json.RootElement;
+
+        var errors = root.GetProperty("errors");
+
+        errors.TryGetProperty("", out var bodyErrors).Should().BeTrue("Expected body error for empty payload");
+        bodyErrors[0].GetString().Should().Be("A non-empty request body is required.");
+
+        errors.TryGetProperty("command", out var commandErrors).Should().BeTrue("Expected error for missing 'command'");
+        commandErrors[0].GetString().Should().Be("The command field is required.");
     }
 }
