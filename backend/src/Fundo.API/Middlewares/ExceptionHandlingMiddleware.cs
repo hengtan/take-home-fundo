@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace Fundo.API.Middlewares;
 
 public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
@@ -8,16 +10,15 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
         {
             await next(context);
         }
-        catch (ArgumentException ex)
-        {
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            await context.Response.WriteAsJsonAsync(new { error = ex.Message });
-        }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unhandled exception");
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            await context.Response.WriteAsJsonAsync(new { error = "An unexpected error occurred." });
+            logger.LogError(ex, "Unhandled exception: {Message}", ex.Message);
+
+            context.Response.StatusCode = 500;
+            context.Response.ContentType = "application/json";
+
+            var response = new { error = "An unexpected error occurred." };
+            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
         }
     }
 }

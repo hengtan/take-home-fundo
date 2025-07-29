@@ -15,4 +15,5 @@ public sealed class Error
     public static Error NotFound(string message) => new("NotFound", message);
     public static Error Conflict(string message) => new("Conflict", message);
     public static Error Internal(string message) => new("Internal", message);
+    public static Error Unexpected(string message) => new("Unexpected", message);
 }
