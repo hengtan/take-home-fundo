@@ -4,8 +4,12 @@ using Fundo.Infrastructure.DependencyInjection;
 using Fundo.Infrastructure.Persistence;
 using Fundo.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+SerilogConfiguration.Configure();
+builder.Host.UseSerilog();
 
 // --------------------------------------------------
 // Configuration & Environment

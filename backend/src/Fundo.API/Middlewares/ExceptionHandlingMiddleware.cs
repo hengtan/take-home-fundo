@@ -37,7 +37,10 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unhandled exception");
+            logger.LogError(ex, "Exception caught in middleware. Path: {Path}, Method: {Method}, Message: {Message}",
+                context.Request.Path,
+                context.Request.Method,
+                ex.Message);
 
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             context.Response.ContentType = "application/json";
