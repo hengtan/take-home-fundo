@@ -18,3 +18,5 @@ var app = builder.Build();
 app.UseFundoMiddlewares(app.Environment);
 app.MapControllers();
 app.Run();
+
+public partial class Program { }
