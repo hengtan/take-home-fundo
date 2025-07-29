@@ -2,7 +2,7 @@ using Fundo.Application.DTOs;
 using Fundo.Application.Interfaces;
 using MediatR;
 
-namespace Fundo.Application.Commands.Loans.GetById;
+namespace Fundo.Application.Queries.Loan.GetById;
 
 public class GetLoanByIdQueryHandler(ILoanRepository loanRepository)
     : IRequestHandler<GetLoanByIdQuery, LoanDetailsDto?>

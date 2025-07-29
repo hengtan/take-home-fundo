@@ -1,4 +1,4 @@
-namespace Fundo.Application.DTOs;
+namespace Fundo.Application.Queries.Loan.GetById;
 
 public class LoanDetailsDto
 {

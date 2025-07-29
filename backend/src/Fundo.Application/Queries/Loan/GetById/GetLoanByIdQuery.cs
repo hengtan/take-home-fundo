@@ -1,6 +1,6 @@
 using Fundo.Application.DTOs;
 using MediatR;
 
-namespace Fundo.Application.Commands.Loans.GetById;
+namespace Fundo.Application.Queries.Loan.GetById;
 
 public record GetLoanByIdQuery(Guid Id) : IRequest<LoanDetailsDto>;
