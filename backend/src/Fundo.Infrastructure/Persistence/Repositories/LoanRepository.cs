@@ -26,9 +26,4 @@ public class LoanRepository(LoanDbContext context) : ILoanRepository
         .OrderBy(l => l.ApplicantName)
         .ToListAsync(cancellationToken);
     }
-
-    public async Task SaveChangesAsync(CancellationToken cancellationToken)
-    {
-        await context.SaveChangesAsync(cancellationToken);
-    }
 }

@@ -3,7 +3,8 @@ using MediatR;
 
 namespace Fundo.Application.Commands.Loans.Payment;
 
-public class AddPaymentCommandHandler(ILoanRepository loanRepository) : IRequestHandler<AddPaymentCommand>
+public class AddPaymentCommandHandler(ILoanRepository loanRepository,
+    IUnitOfWork unitOfWork) : IRequestHandler<AddPaymentCommand>
 {
     public async Task Handle(AddPaymentCommand request, CancellationToken cancellationToken)
     {
@@ -12,6 +13,6 @@ public class AddPaymentCommandHandler(ILoanRepository loanRepository) : IRequest
 
         loan.RegisterPayment(request.Amount);
 
-        await loanRepository.SaveChangesAsync(cancellationToken);
+        await unitOfWork.CommitAsync(cancellationToken);
     }
 }
