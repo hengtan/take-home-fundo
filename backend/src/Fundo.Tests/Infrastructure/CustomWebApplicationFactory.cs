@@ -1,12 +1,12 @@
 using System;
 using System.IO;
+using System.Linq;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Configuration;
-using System.Linq;
 
 namespace Fundo.Services.Tests.Infrastructure;
 

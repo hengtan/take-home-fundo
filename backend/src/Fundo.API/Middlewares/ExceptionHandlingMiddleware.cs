@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json;
 
 namespace Fundo.API.Middlewares;
@@ -12,13 +13,18 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Unhandled exception: {Message}", ex.Message);
+            logger.LogError(ex, "Unhandled exception");
 
-            context.Response.StatusCode = 500;
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             context.Response.ContentType = "application/json";
 
-            var response = new { error = "An unexpected error occurred." };
-            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+            var result = JsonSerializer.Serialize(new
+            {
+                StatusCode = context.Response.StatusCode,
+                Message = "An unexpected error occurred. Please try again later."
+            });
+
+            await context.Response.WriteAsync(result);
         }
     }
 }

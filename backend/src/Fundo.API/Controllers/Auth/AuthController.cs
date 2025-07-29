@@ -20,30 +20,75 @@ public class AuthController(IOptions<JwtSettings> jwtOptions) : ControllerBase
     [AllowAnonymous]
     public IActionResult Token([FromBody] ClientAuthRequest request)
     {
-        // Mock check - você pode validar via banco depois
-        if (request.ClientId != "fundo-app" || request.ClientSecret != "dev-secret-123")
+        if (!TryValidateClient(request.ClientId, request.ClientSecret))
             return Unauthorized("Invalid client credentials");
 
+        if (!AreJwtSettingsValid(out var validationError))
+            return StatusCode(StatusCodes.Status500InternalServerError, validationError);
+
+        var token = GenerateJwtToken(request.ClientId);
+
+        return Ok(new TokenResponse
+        {
+            AccessToken = token,
+            ExpiresIn = _jwtSettings.ExpirationMinutes * 60
+        });
+    }
+
+    private bool TryValidateClient(string clientId, string clientSecret)
+    {
+        return _jwtSettings.Clients.TryGetValue(clientId, out var expectedSecret)
+               && expectedSecret == clientSecret;
+    }
+
+    private bool AreJwtSettingsValid(out string error)
+    {
+        if (string.IsNullOrWhiteSpace(_jwtSettings.Key))
+        {
+            error = "JWT Key is not configured.";
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(_jwtSettings.Issuer))
+        {
+            error = "JWT Issuer is not configured.";
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(_jwtSettings.Audience))
+        {
+            error = "JWT Audience is not configured.";
+            return false;
+        }
+
+        error = string.Empty;
+        return true;
+    }
+
+    private string GenerateJwtToken(string clientId)
+    {
         var claims = new[]
         {
-            new Claim("client_id", request.ClientId)
+            new Claim("client_id", clientId)
         };
 
         var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtSettings.Key));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var token = new JwtSecurityToken(
+        var jwtToken = new JwtSecurityToken(
             issuer: _jwtSettings.Issuer,
             audience: _jwtSettings.Audience,
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
-            signingCredentials: creds
+            signingCredentials: credentials
         );
 
-        return Ok(new
-        {
-            access_token = new JwtSecurityTokenHandler().WriteToken(token),
-            expires_in = _jwtSettings.ExpirationMinutes * 60
-        });
+        return new JwtSecurityTokenHandler().WriteToken(jwtToken);
+    }
+
+    private class TokenResponse
+    {
+        public string AccessToken { get; set; } = string.Empty;
+        public int ExpiresIn { get; set; }
     }
 }

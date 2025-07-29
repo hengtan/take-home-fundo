@@ -2,9 +2,10 @@ using System.Threading.Tasks;
 using Fundo.Infrastructure.Persistence;
 using Fundo.Services.Tests.Helpers.Config;
 using Fundo.Services.Tests.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestPlatform.TestHost;
 
 namespace Fundo.Services.Tests.Integration.Common;
 

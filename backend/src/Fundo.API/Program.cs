@@ -1,74 +1,40 @@
 using Fundo.API.Extensions;
-using Fundo.Application.DependencyInjection;
 using Fundo.Infrastructure.DependencyInjection;
-using Fundo.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
+using Fundo.Infrastructure.Security;
 
-Log.Logger = new LoggerConfiguration()
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .WriteTo.File("logs/fundo-api-.log", rollingInterval: RollingInterval.Day)
-    .MinimumLevel.Debug()
-    .CreateLogger();
+var builder = WebApplication.CreateBuilder(args);
+var env = builder.Environment;
 
-try
+var config = builder.Configuration;
+builder.Services.Configure<JwtSettings>(config.GetSection("Jwt"));
+builder.Services.AddInfrastructure(config);
+builder.Services.AddApplicationServices();
+
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerExtension();
+builder.Services.AddAuthenticationExtension(config);
+
+builder.Services.AddCors(options =>
 {
-    Log.Information("Starting Fundo.API...");
-
-    var builder = WebApplication.CreateBuilder(args);
-
-    builder.WebHost.UseUrls("http://*:5000");
-
-    // Substitui o logger padrão pelo Serilog
-    builder.Host.UseSerilog();
-
-    // Services
-    builder.Services.AddInfrastructure(builder.Configuration);
-    builder.Services.AddApplication();
-    builder.Services.AddControllers();
-    builder.Services.AddJwtAuthentication(builder.Configuration);
-    builder.Services.AddSwaggerDocumentation();
-    builder.Services.AddMediatR(cfg =>
-        cfg.RegisterServicesFromAssemblyContaining<Fundo.Application.Commands.Loans.Create.CreateLoanCommand>());
-
-    var app = builder.Build();
-
-    // Middleware customizado (ExceptionHandling etc)
-    app.UseFundoMiddlewares(app.Environment);
-
-    app.UseSwaggerDocumentation();
-
-    app.Use(async (context, next) =>
+    options.AddPolicy("AllowAll", builder =>
     {
-        if (context.Request.Path == "/")
-        {
-            context.Response.Redirect("/index.html");
-            return;
-        }
-
-        await next();
+        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
     });
+});
 
-    // Migrations
-    using (var scope = app.Services.CreateScope())
-    {
-        var db = scope.ServiceProvider.GetRequiredService<LoanDbContext>();
-        db.Database.Migrate();
-    }
+var app = builder.Build();
 
-    app.MapControllers();
-    app.Run();
+app.UseExceptionHandling();
+app.UseHttpsRedirection();
+app.UseRouting();
 
-    Log.Information("Fundo.API started successfully");
-}
-catch (Exception ex)
-{
-    Log.Fatal(ex, "Fundo.API terminated unexpectedly");
-}
-finally
-{
-    Log.CloseAndFlush();
-}
+app.UseCors("AllowAll");
+app.UseAuthentication();
+app.UseAuthorization();
 
-public partial class Program { }
+app.MapControllers();
+app.UseSwaggerExtension(env);
+
+app.Run();
