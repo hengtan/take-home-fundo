@@ -22,8 +22,13 @@ public class LoanRepository(LoanDbContext context) : ILoanRepository
     public async Task<List<Loan>> GetAllAsync(CancellationToken cancellationToken)
     {
         return await context.Loans
-            .AsNoTracking()
-            .OrderBy(l => l.ApplicantName)
-            .ToListAsync(cancellationToken);
+        .AsNoTracking()
+        .OrderBy(l => l.ApplicantName)
+        .ToListAsync(cancellationToken);
+    }
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken)
+    {
+        await context.SaveChangesAsync(cancellationToken);
     }
 }
