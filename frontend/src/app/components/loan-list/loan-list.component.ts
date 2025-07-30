@@ -27,13 +27,13 @@ export class LoanListComponent implements OnInit {
                 })
             )
             .subscribe({
-                next: (data: Loan[]) => {
-                    console.log('✅ Empréstimos carregados:', data);
-                    this.loans = data;
-                },
-                error: (err) => {
-                    console.error('❌ Erro ao buscar empréstimos:', err);
-                }
+              next: (data: Loan[]) => {
+                console.log('✅ Loans retrieved:', data);
+                this.loans = data;
+              },
+              error: (err) => {
+                console.error('❌ Error fetching loans:', err);
+              }
             });
     }
 }

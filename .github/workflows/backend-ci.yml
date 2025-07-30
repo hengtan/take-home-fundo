@@ -1,15 +1,17 @@
-name: Backend CI
+name: Fullstack CI
 
 on:
   push:
     paths:
       - 'backend/**'
+      - 'frontend/**'
   pull_request:
     paths:
       - 'backend/**'
+      - 'frontend/**'
 
 jobs:
-  build-and-test-backend:
+  build-and-test:
     runs-on: ubuntu-latest
 
     services:
@@ -22,7 +24,7 @@ jobs:
           - 1433:1433
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup .NET
@@ -30,7 +32,12 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      - name: Install sqlcmd
+      - name: Setup Node.js (Angular)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install sqlcmd tools
         run: |
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
@@ -51,18 +58,33 @@ jobs:
           echo "❌ SQL Server não respondeu a tempo. Falhando a pipeline."
           exit 1
 
-      - name: Restore
+      - name: Restore .NET dependencies
         run: dotnet restore backend/src/src.sln
 
-      - name: Build
+      - name: Build .NET solution
         run: dotnet build backend/src/src.sln --no-restore --configuration Release
 
-      - name: Run tests
+      - name: Run .NET tests
         run: dotnet test backend/src/src.sln --no-build --configuration Release --logger "trx"
 
-      - name: Upload test results
+      - name: Upload .NET test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: backend-test-results
           path: '**/TestResults/*.trx'
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build frontend (Angular)
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Run frontend tests (if present)
+        run: |
+          cd frontend
+          npm test -- --watch=false --browsers=ChromeHeadless || exit 1
