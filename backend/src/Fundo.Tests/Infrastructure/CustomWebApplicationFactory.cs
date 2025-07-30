@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using Fundo.Services.Tests.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;

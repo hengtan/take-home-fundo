@@ -64,7 +64,7 @@ namespace Fundo.Services.Tests.Unit.Application.Queries.Loans
 
             // Assert
             result.IsFailure.Should().BeTrue();
-            result.Error.Code.Should().Be("NotFound");
+            result.Error?.Code.Should().Be("NotFound");
         }
     }
 }

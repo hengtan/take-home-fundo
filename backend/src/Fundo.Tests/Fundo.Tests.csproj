@@ -4,8 +4,11 @@
 		<TargetFramework>net9.0</TargetFramework>
 		<IsPackable>false</IsPackable>
 		<RootNamespace>Fundo.Services.Tests</RootNamespace>
+		<Nullable>enable</Nullable>
 	</PropertyGroup>
-
+	<PropertyGroup>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="FluentAssertions" Version="8.5.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.0" />
@@ -17,7 +20,7 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="coverlet.collector" Version="3.3.2">
+		<PackageReference Include="coverlet.collector" Version="6.0.0">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>

@@ -1,15 +1,11 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Fundo.API.Controllers.Loans;
 using Fundo.Application.Queries.Loan.GetById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Xunit;
 
-namespace Fundo.Tests.Unit.Application.Queries.Loans;
+namespace Fundo.Services.Tests.Unit.Application.Queries.Loans;
 
 public class GetLoanByIdQueryHandlerTests
 {
@@ -43,7 +39,7 @@ public class GetLoanByIdQueryHandlerTests
         mockMediator
             .Setup(m =>
                 m.Send(It.Is<GetLoanByIdQuery>(q => q.Id == loanId),
-                    It.IsAny<CancellationToken>()))
+                    It.IsAny<CancellationToken>()))!
             .ReturnsAsync((LoanDetailsDto?)null);
 
         var controller = new LoansController(mockMediator.Object);
@@ -79,7 +75,7 @@ public class GetLoanByIdQueryHandlerTests
 
         mockMediator
             .Setup(m => m.Send(It.IsAny<GetLoanByIdQuery>(),
-                It.IsAny<CancellationToken>()))
+                It.IsAny<CancellationToken>()))!
             .ReturnsAsync((LoanDetailsDto?)null);
 
         var controller = new LoansController(mockMediator.Object);

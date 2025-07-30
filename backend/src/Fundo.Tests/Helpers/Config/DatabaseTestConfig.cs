@@ -15,5 +15,5 @@ public static class DatabaseTestConfig
             .Build();
     }
 
-    public static string ConnectionString => Configuration.GetConnectionString("Default");
+    public static string ConnectionString => Configuration.GetConnectionString("Default") ?? string.Empty;
 }
