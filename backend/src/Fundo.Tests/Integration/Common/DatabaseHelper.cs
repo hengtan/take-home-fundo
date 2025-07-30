@@ -5,7 +5,6 @@ using Fundo.Tests.Infrastructure;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
 
 namespace Fundo.Services.Tests.Integration.Common;
 
@@ -33,4 +32,13 @@ public static class DatabaseHelper
 
         return await context.Loans.AnyAsync();
     }
+
+    public static async Task InitializeDatabaseAsync(CustomWebApplicationFactory<Program> factory)
+    {
+        using var scope = factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<LoanDbContext>();
+
+        await context.Database.MigrateAsync();
+    }
+
 }

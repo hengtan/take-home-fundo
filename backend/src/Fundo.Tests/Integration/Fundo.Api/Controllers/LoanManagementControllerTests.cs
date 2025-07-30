@@ -22,6 +22,7 @@ public class LoanManagementControllerTests : IClassFixture<CustomWebApplicationF
     {
         _factory = factory;
         _client = factory.CreateClient();
+        DatabaseHelper.InitializeDatabaseAsync(_factory).GetAwaiter().GetResult();
     }
 
     [Fact]
