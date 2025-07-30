@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
-namespace Fundo.Tests.Unit.Application.Commands.Loans;
+namespace Fundo.Services.Tests.Unit.Application.Commands.Loans;
 
 public class CreateLoanCommandHandlerTests
 {
