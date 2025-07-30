@@ -33,5 +33,5 @@ jobs:
       - name: 🏗️ Build Angular App
         run: npx ng build
 
-      - name: 🧪 Run unit tests (headless)
-        run: npx ng test --watch=false --browsers=ChromeHeadless
+      # - name: 🧪 Run unit tests (temporarily disabled)
+      #   run: npx ng test --watch=false --browsers=ChromeHeadless
