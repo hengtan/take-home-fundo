@@ -345,7 +345,7 @@ public class LoanManagementControllerTests : IClassFixture<CustomWebApplicationF
         {
             amount = 1500m,
             currentBalance = 1500m,
-            applicantName = "Teste Falho"
+            applicantName = "Failed Test"
         };
 
         var content = new StringContent(JsonSerializer.Serialize(createLoan), Encoding.UTF8, "application/json");
@@ -353,7 +353,7 @@ public class LoanManagementControllerTests : IClassFixture<CustomWebApplicationF
         var body = await response.Content.ReadAsStringAsync();
         var loanId = JsonDocument.Parse(body).RootElement.GetGuid();
 
-        var invalidPayload = new { }; // amount ausente
+        var invalidPayload = new { };
         var invalidContent = new StringContent(JsonSerializer.Serialize(invalidPayload), Encoding.UTF8, "application/json");
 
         var payResponse = await _client.PostAsync($"/loans/{loanId}/payment", invalidContent);
