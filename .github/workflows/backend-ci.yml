@@ -17,13 +17,14 @@ jobs:
         image: mcr.microsoft.com/mssql/server:2019-latest
         ports:
           - 1433:1433
+        env:
+          SA_PASSWORD: 'yourStrong(!)Password'
+          ACCEPT_EULA: 'Y'
         options: >-
           --health-cmd "exit 0"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 15
-          -e 'ACCEPT_EULA=Y'
-          -e 'SA_PASSWORD=yourStrong(!)Password'
 
     steps:
       - name: Checkout code
@@ -37,13 +38,17 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore backend/src/src.sln
 
-      - name: Build
+      - name: Build solution
         run: dotnet build backend/src/src.sln --no-restore --configuration Release
 
       - name: Wait for SQL Server to be ready
         run: |
-          echo "Aguardando SQL Server iniciar..."
-          sleep 20
+          echo "Aguardando SQL Server..."
+          for i in {1..30}; do
+            /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'yourStrong(!)Password' -Q "SELECT 1" && break
+            echo "Tentativa $i de conexão falhou, aguardando..."
+            sleep 5
+          done
 
       - name: Run tests
         run: dotnet test backend/src/src.sln --no-build --verbosity normal --logger "trx"
