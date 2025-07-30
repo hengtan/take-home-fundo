@@ -7,8 +7,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Fundo.Application.Errors.ErrorsMessages;
+using Fundo.Services.Tests.Infrastructure;
 using Fundo.Services.Tests.Integration.Common;
-using Fundo.Tests.Infrastructure;
 using Xunit;
 
 namespace Fundo.Services.Tests.Integration.Fundo.Api.Controllers;

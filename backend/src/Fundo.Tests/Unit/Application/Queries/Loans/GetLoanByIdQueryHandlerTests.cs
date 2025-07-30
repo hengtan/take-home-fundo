@@ -20,7 +20,8 @@ public class GetLoanByIdQueryHandlerTests
         var expectedLoan = new LoanDetailsDto { Id = loanId, ApplicantName = "Test User" };
 
         var mockMediator = new Mock<IMediator>();
-        mockMediator.Setup(m => m.Send(It.Is<GetLoanByIdQuery>(q => q.Id == loanId), default))
+        mockMediator.Setup(m => m.Send(It.Is<GetLoanByIdQuery>(
+                q => q.Id == loanId), default))
             .ReturnsAsync(expectedLoan);
 
         var controller = new LoansController(mockMediator.Object);

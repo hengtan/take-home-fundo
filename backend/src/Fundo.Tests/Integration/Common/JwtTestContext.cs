@@ -2,7 +2,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using Fundo.Infrastructure.Security;
 using Fundo.Services.Tests.Helpers;
-using Fundo.Tests.Helpers;
 
 namespace Fundo.Services.Tests.Integration.Common;
 

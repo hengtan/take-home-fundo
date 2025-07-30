@@ -8,9 +8,8 @@ public class LoanDbContextFactory : IDesignTimeDbContextFactory<LoanDbContext>
 {
     public LoanDbContext CreateDbContext(string[] args)
     {
-        // 🔧 Carrega o appsettings.json manualmente
         var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory()) // Necessário para rodar do diretório do projeto
+            .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json")
             .Build();
 

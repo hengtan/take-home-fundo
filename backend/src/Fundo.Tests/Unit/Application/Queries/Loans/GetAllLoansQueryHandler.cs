@@ -24,7 +24,8 @@ public class GetAllLoansQueryHandler
         };
 
         var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<GetAllLoansQuery>(), It.IsAny<CancellationToken>()))
+        mediator.Setup(m => m.Send(It.IsAny<GetAllLoansQuery>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedLoans);
 
         var controller = new LoansController(mediator.Object);
@@ -41,7 +42,8 @@ public class GetAllLoansQueryHandler
     public async Task GetAll_ShouldReturnNoContent_WhenNoLoansExist()
     {
         var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<GetAllLoansQuery>(), It.IsAny<CancellationToken>()))
+        mediator.Setup(m => m.Send(It.IsAny<GetAllLoansQuery>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         var controller = new LoansController(mediator.Object);

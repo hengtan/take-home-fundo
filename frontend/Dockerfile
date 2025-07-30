@@ -1,4 +1,3 @@
-# Stage 1: build
 FROM node:18-alpine AS builder
 WORKDIR /app
 
@@ -8,7 +7,6 @@ RUN npm install
 COPY . .
 RUN npm run build -- --configuration=production --project=temp
 
-# Stage 2: nginx
 FROM nginx:stable-alpine
 COPY --from=builder /app/dist/temp /usr/share/nginx/html
 EXPOSE 80

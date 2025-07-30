@@ -1,4 +1,3 @@
-using Fundo.Application.DTOs;
 using Fundo.Application.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -13,10 +12,6 @@ public class GetAllLoansQueryHandler(ILoanRepository loanRepository, ILogger<Get
         logger.LogInformation("Fetching all loans");
 
         var loans = await loanRepository.GetAllAsync(cancellationToken);
-
-
-
-
 
         var dtos = loans.OrderBy(a=>a.ApplicantName)
             .Select(MapToListItemDto).ToList();

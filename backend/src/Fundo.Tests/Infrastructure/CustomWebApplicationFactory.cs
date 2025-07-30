@@ -1,16 +1,15 @@
 using System;
 using System.IO;
 using System.Linq;
-using Fundo.Services.Tests.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Fundo.Tests.Infrastructure;
+namespace Fundo.Services.Tests.Infrastructure;
 
-public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
+public abstract class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStartup> where TStartup : class
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -22,19 +21,16 @@ public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<TStar
 
         builder.ConfigureServices(services =>
         {
-            // Remove autenticações reais
             var descriptor = services.SingleOrDefault(
                 d => d.ServiceType == typeof(AuthenticationSchemeProvider));
 
             if (descriptor != null)
                 services.Remove(descriptor);
 
-            // Adiciona esquema fake
             services.AddAuthentication("TestScheme")
                 .AddScheme<AuthenticationSchemeOptions, FakeAuthHandler>(
                     "TestScheme", options => { });
 
-            // Garante autenticação nos testes
             services.PostConfigureAll<AuthenticationOptions>(options =>
             {
                 options.DefaultAuthenticateScheme = "TestScheme";
