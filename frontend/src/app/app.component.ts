@@ -1,40 +1,14 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
+import { LoanListComponent } from './components/loan-list/loan-list.component'; // ajuste caminho se necessário
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatButtonModule],
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
+  imports: [
+    RouterOutlet
+    // ,LoanListComponent    // Se estiver usando diretamente (mas no seu caso agora é via rota)
+  ],
+  templateUrl: './app.component.html'
 })
-export class AppComponent {
-  displayedColumns: string[] = [
-    'loanAmount',
-    'currentBalance',
-    'applicant',
-    'status',
-  ];
-  loans = [
-    {
-      loanAmount: 25000.00,
-      currentBalance: 18750.00,
-      applicant: 'John Doe',
-      status: 'active',
-    },
-    {
-      loanAmount: 15000.00,
-      currentBalance: 0,
-      applicant: 'Jane Smith',
-      status: 'paid',
-    },
-    {
-      loanAmount: 50000.00,
-      currentBalance: 32500.00,
-      applicant: 'Robert Johnson',
-      status: 'active',
-    },
-  ];
-}
+export class AppComponent {}
