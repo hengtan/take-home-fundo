@@ -37,7 +37,6 @@ obj/
 # Local dependency configuration
 .nuget/
 packages/
-project.lock.json
 project.assets.json
 
 # Development certificates
@@ -51,7 +50,6 @@ project.assets.json
 node_modules/
 dist/
 coverage/
-package-lock.json
 yarn.lock
 pnpm-lock.yaml
 .npmrc
