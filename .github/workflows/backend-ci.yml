@@ -21,10 +21,7 @@ jobs:
           SA_PASSWORD: "Your_strong_Pass123"
           ACCEPT_EULA: "Y"
         options: >-
-          --health-cmd "sqlcmd -S localhost -U sa -P Your_strong_Pass123 -Q 'SELECT 1'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 15
+          --name sqlserver-test
 
     steps:
       - name: Checkout code
@@ -35,8 +32,12 @@ jobs:
         with:
           dotnet-version: '9.x'
 
-      - name: Wait for SQL Server to become ready
-        run: sleep 30
+      - name: Wait for SQL Server to be ready
+        run: |
+          echo "Aguardando SQL Server iniciar (60s)..."
+          sleep 60
+          echo "Testando conexão ao SQL Server..."
+          timeout 15 bash -c 'until nc -z localhost 1433; do sleep 1; done'
 
       - name: Restore dependencies
         run: dotnet restore backend/src/src.sln
