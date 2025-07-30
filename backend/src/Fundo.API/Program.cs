@@ -47,6 +47,7 @@ app.UseSwaggerExtension(env);
 
 ApplyMigrations(app);
 app.Run();
+return;
 
 static void ApplyMigrations(WebApplication app)
 {
