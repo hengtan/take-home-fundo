@@ -102,7 +102,7 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
         },
         new {
             Id = Guid.Parse("11aaf61e-4de7-4607-b9fd-dbc81d15cb11"),
-            Amount = 10000m,
+            Amount = 20000m,
             CurrentBalance = 10000m,
             ApplicantName = "Sophia Moore",
             Status = LoanStatus.Active
