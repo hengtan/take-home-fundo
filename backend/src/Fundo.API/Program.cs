@@ -11,15 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 SerilogConfiguration.Configure();
 builder.Host.UseSerilog();
 
-// --------------------------------------------------
-// Configuration & Environment
-// --------------------------------------------------
 var env = builder.Environment;
 var config = builder.Configuration;
 
-// --------------------------------------------------
-// Service Registrations
-// --------------------------------------------------
 builder.Services.Configure<JwtSettings>(config.GetSection("Jwt"));
 
 builder.Services.AddInfrastructure(config);
@@ -30,7 +24,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerExtension();
 builder.Services.AddAuthenticationExtension(config);
 
-// CORS Policy
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -41,9 +34,6 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// --------------------------------------------------
-// Middleware Pipeline
-// --------------------------------------------------
 app.UseExceptionHandling();
 app.UseHttpsRedirection();
 app.UseRouting();
@@ -55,16 +45,9 @@ app.UseAuthorization();
 app.MapControllers();
 app.UseSwaggerExtension(env);
 
-// --------------------------------------------------
-// Apply EF Core Migrations Automatically
-// --------------------------------------------------
 ApplyMigrations(app);
 app.Run();
 
-
-// --------------------------------------------------
-// Helpers
-// --------------------------------------------------
 static void ApplyMigrations(WebApplication app)
 {
     using var scope = app.Services.CreateScope();
@@ -72,5 +55,4 @@ static void ApplyMigrations(WebApplication app)
     dbContext.Database.Migrate();
 }
 
-// Needed for testing project reference
 public partial class Program { }
