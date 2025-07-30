@@ -14,7 +14,12 @@ public class GetAllLoansQueryHandler(ILoanRepository loanRepository, ILogger<Get
 
         var loans = await loanRepository.GetAllAsync(cancellationToken);
 
-        var dtos = loans.Select(MapToListItemDto).ToList();
+
+
+
+
+        var dtos = loans.OrderByDescending(a=>a.ApplicantName)
+            .Select(MapToListItemDto).ToList();
 
         logger.LogInformation("{Count} loans fetched successfully", dtos.Count);
 
