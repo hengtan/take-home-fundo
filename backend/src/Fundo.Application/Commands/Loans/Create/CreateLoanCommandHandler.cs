@@ -43,7 +43,7 @@ public class CreateLoanCommandHandler(IUnitOfWork unitOfWork, ILogger<CreateLoan
 
     private static Loan CreateLoanEntity(CreateLoanCommand request)
     {
-        return new Loan(request.Amount, request.CurrentBalance, request.ApplicantName);
+        return Loan.Create(request.Amount, request.CurrentBalance, request.ApplicantName);
     }
 
     private async Task<Result<Unit>> PersistLoanAsync(Loan loan, CancellationToken cancellationToken)

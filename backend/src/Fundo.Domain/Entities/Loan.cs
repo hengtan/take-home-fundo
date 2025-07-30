@@ -18,7 +18,7 @@ public class Loan
 
     protected Loan() {}
 
-    public Loan(decimal amount, decimal currentBalance, string applicantName)
+    private Loan(decimal amount, decimal currentBalance, string applicantName)
     {
         if (amount <= 0)
             throw new ArgumentException("Loan amount must be greater than zero.");
@@ -37,6 +37,12 @@ public class Loan
         CurrentBalance = currentBalance;
         ApplicantName = applicantName;
         Status = LoanStatus.Active;
+        UpdateStatus();
+    }
+
+    public static Loan Create(decimal amount, decimal currentBalance, string applicantName)
+    {
+        return new Loan(amount, currentBalance, applicantName);
     }
 
     public void RegisterPayment(decimal amount)
@@ -47,10 +53,12 @@ public class Loan
         if (IsPaid)
             throw new InvalidOperationException("Loan is already paid.");
 
-        CurrentBalance -= amount;
+        CurrentBalance = Math.Max(0, CurrentBalance - amount);
+        UpdateStatus();
+    }
 
-        if (CurrentBalance > 0) return;
-        CurrentBalance = 0;
-        Status = LoanStatus.Paid;
+    private void UpdateStatus()
+    {
+        Status = IsPaid ? LoanStatus.Paid : LoanStatus.Active;
     }
 }

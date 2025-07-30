@@ -15,7 +15,6 @@ public class LoanRepository(LoanDbContext context) : ILoanRepository
     public async Task<Loan?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         return await context.Loans
-            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
