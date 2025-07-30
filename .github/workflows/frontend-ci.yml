@@ -1,4 +1,4 @@
-name: Frontend CI
+name: 🚀 Frontend CI
 
 on:
   push:
@@ -17,30 +17,20 @@ jobs:
         working-directory: frontend
 
     steps:
-      - name: Checkout code
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: 🧰 Setup Node.js 18
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+          cache: 'yarn'
 
-      - name: Cache Node Modules
-        uses: actions/cache@v4
-        with:
-          path: frontend/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('frontend/yarn.lock', 'frontend/package-lock.json') }}
+      - name: 📦 Install dependencies with Yarn
+        run: yarn install --frozen-lockfile
 
-      - name: Install dependencies
-        run: |
-          if [ -f yarn.lock ]; then yarn install --frozen-lockfile
-          else npm ci
-          fi
+      - name: 🏗️ Build Angular app
+        run: npx ng build
 
-      - name: Build Angular app
-        run: |
-          npx ng build
-
-      - name: Run tests (headless)
-        run: |
-          npx ng test --watch=false --browsers=ChromeHeadless
+      - name: 🧪 Run unit tests (headless)
+        run: npx ng test --watch=false --browsers=ChromeHeadless
