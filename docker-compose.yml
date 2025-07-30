@@ -4,7 +4,7 @@ services:
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
-      SA_PASSWORD: "yourStrong(!)Password"
+      SA_PASSWORD: "Your_strong_Pass123"
       ACCEPT_EULA: "Y"
     ports:
       - "1433:1433"
@@ -30,7 +30,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
       - DOTNET_GENERATE_ASPNET_CERTIFICATE=false
-      - ConnectionStrings__Default=Server=db;Database=LoanDb;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True
+      - ConnectionStrings__Default=Server=db;Database=LoanDb;User Id=sa;Password=Your_strong_Pass123;TrustServerCertificate=True
       - Jwt__Key=super-strong-secret-key-for-testing-123!
       - Jwt__Issuer=FundoIssuer
       - Jwt__Audience=FundoAudience

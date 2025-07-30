@@ -1,7 +1,7 @@
 #!/bin/sh
 
 echo "🔄 Waiting for SQL Server to start..."
-until /opt/mssql-tools/bin/sqlcmd -S db -U sa -P 'yourStrong(!)Password' -Q "SELECT 1" &>/dev/null
+until /opt/mssql-tools/bin/sqlcmd -S db -U sa -P 'Your_strong_Pass123' -Q "SELECT 1" &>/dev/null
 do
   echo "⏳ Waiting for database..."
   sleep 2

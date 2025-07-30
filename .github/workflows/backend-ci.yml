@@ -18,10 +18,10 @@ jobs:
         ports:
           - 1433:1433
         env:
-          SA_PASSWORD: 'yourStrong(!)Password'
-          ACCEPT_EULA: 'Y'
+          SA_PASSWORD: "Your_strong_Pass123"
+          ACCEPT_EULA: "Y"
         options: >-
-          --health-cmd "exit 0"
+          --health-cmd "sqlcmd -S localhost -U sa -P Your_strong_Pass123 -Q 'SELECT 1'"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 15
@@ -35,20 +35,14 @@ jobs:
         with:
           dotnet-version: '9.x'
 
+      - name: Wait for SQL Server to become ready
+        run: sleep 30
+
       - name: Restore dependencies
         run: dotnet restore backend/src/src.sln
 
-      - name: Build solution
+      - name: Build
         run: dotnet build backend/src/src.sln --no-restore --configuration Release
-
-      - name: Wait for SQL Server to be ready
-        run: |
-          echo "Aguardando SQL Server..."
-          for i in {1..30}; do
-            /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'yourStrong(!)Password' -Q "SELECT 1" && break
-            echo "Tentativa $i de conexão falhou, aguardando..."
-            sleep 5
-          done
 
       - name: Run tests
         run: dotnet test backend/src/src.sln --no-build --verbosity normal --logger "trx"
