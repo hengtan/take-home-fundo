@@ -9,7 +9,7 @@ on:
       - 'backend/**'
 
 jobs:
-  build-and-test:
+  build-and-test-backend:
     runs-on: ubuntu-latest
 
     services:
@@ -21,29 +21,45 @@ jobs:
           SA_PASSWORD: "Your_strong_Pass123"
           ACCEPT_EULA: "Y"
         options: >-
-          --name sqlserver-test
+          --health-cmd="sqlcmd -S localhost -U sa -P 'Your_strong_Pass123' -Q 'SELECT 1'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=20
 
     steps:
-      - name: Checkout code
+      - name: 🧾 Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: 🧰 Setup .NET 9 SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.x'
+          dotnet-version: '9.0.x'
 
-      - name: Wait for SQL Server to be ready
+      - name: ⏳ Wait for SQL Server to be healthy
         run: |
-          echo "Aguardando SQL Server iniciar (60s)..."
-          sleep 60
-          echo "Testando conexão ao SQL Server..."
-          timeout 15 bash -c 'until nc -z localhost 1433; do sleep 1; done'
+          for i in {1..20}; do
+            if /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_strong_Pass123' -Q "SELECT 1" > /dev/null 2>&1; then
+              echo "✅ SQL Server is ready!"
+              exit 0
+            fi
+            echo "⏳ Waiting for SQL Server to be ready ($i/20)..."
+            sleep 5
+          done
+          echo "❌ SQL Server did not become healthy in time"
+          exit 1
 
-      - name: Restore dependencies
+      - name: 📦 Restore dependencies
         run: dotnet restore backend/src/src.sln
 
-      - name: Build
+      - name: 🏗️ Build solution
         run: dotnet build backend/src/src.sln --no-restore --configuration Release
 
-      - name: Run tests
-        run: dotnet test backend/src/src.sln --no-build --verbosity normal --logger "trx"
+      - name: 🧪 Run tests (fail on error)
+        run: dotnet test backend/src/src.sln --no-build --configuration Release --logger "trx"
+
+      - name: 📤 Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: '**/TestResults/*.trx'
