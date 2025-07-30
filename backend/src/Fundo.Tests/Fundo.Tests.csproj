@@ -22,6 +22,7 @@
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 	</ItemGroup>
+
 	<ItemGroup>
 		<ProjectReference Include="..\Fundo.API\Fundo.API.csproj" />
 		<ProjectReference Include="..\Fundo.Application\Fundo.Application.csproj" />

@@ -22,15 +22,15 @@ jobs:
           ACCEPT_EULA: "Y"
 
     steps:
-      - name: Checkout code
+      - name: ⏬ Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: 🛠 Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
 
-      - name: Wait for SQL Server to be ready
+      - name: ⌛ Wait for SQL Server to be ready
         run: |
           echo "⌛ Aguardando SQL Server subir..."
           for i in {1..20}; do
@@ -39,16 +39,19 @@ jobs:
             sleep 5
           done
 
-      - name: Restore dependencies
+      - name: 🧹 Clean solution
+        run: dotnet clean backend/src/src.sln
+
+      - name: 📦 Restore dependencies
         run: dotnet restore backend/src/src.sln
 
-      - name: Build solution
+      - name: 🏗 Build solution
         run: dotnet build backend/src/src.sln --no-restore --configuration Release
 
-      - name: Run unit tests
+      - name: 🧪 Run unit tests
         run: dotnet test backend/src/src.sln --no-build --configuration Release --logger "trx"
 
-      - name: Upload test results
+      - name: 📤 Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
