@@ -18,7 +18,7 @@ jobs:
         ports:
           - 1433:1433
         options: >-
-          --health-cmd "sqlcmd -S localhost -U sa -P 'yourStrong(!)Password' -Q 'SELECT 1'"
+          --health-cmd "exit 0"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 15
@@ -39,6 +39,11 @@ jobs:
 
       - name: Build
         run: dotnet build backend/src/src.sln --no-restore --configuration Release
+
+      - name: Wait for SQL Server to be ready
+        run: |
+          echo "Aguardando SQL Server iniciar..."
+          sleep 20
 
       - name: Run tests
         run: dotnet test backend/src/src.sln --no-build --verbosity normal --logger "trx"
