@@ -12,15 +12,6 @@ jobs:
   build-and-test-backend:
     runs-on: ubuntu-latest
 
-    services:
-      sqlserver:
-        image: mcr.microsoft.com/mssql/server:2019-latest
-        ports:
-          - 1433:1433
-        env:
-          SA_PASSWORD: "Your_strong_Pass123"
-          ACCEPT_EULA: "Y"
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,28 +21,40 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      - name: Install SQLCMD tools
+      - name: Install Docker & SQLCMD
         run: |
           sudo apt-get update
-          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
+          sudo apt-get install -y mssql-tools unixodbc-dev docker.io
           echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
           export PATH="$PATH:/opt/mssql-tools/bin"
 
+      - name: Run SQL Server container manually
+        run: |
+          docker run -d \
+            --name sqlserver \
+            -e "ACCEPT_EULA=Y" \
+            -e "SA_PASSWORD=Your_strong_Pass123" \
+            -p 1433:1433 \
+            mcr.microsoft.com/mssql/server:2019-latest
+
       - name: Wait for SQL Server to be ready
         run: |
+          echo "⌛ Aguardando SQL Server subir..."
           for i in {1..20}; do
-            if sqlcmd -S localhost -U sa -P 'Your_strong_Pass123' -Q "SELECT 1" > /dev/null 2>&1; then
-              echo "✅ SQL Server is ready!"
-              break
+            if /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Your_strong_Pass123' -Q "SELECT 1" > /dev/null 2>&1; then
+              echo "✅ SQL Server está pronto!"
+              exit 0
             fi
-            echo "⏳ Waiting for SQL Server ($i/20)..."
+            echo "⏳ Tentativa $i: SQL ainda iniciando..."
             sleep 5
           done
+          echo "❌ SQL Server não respondeu a tempo. Falhando a pipeline."
+          exit 1
 
-      - name: Restore dependencies
+      - name: Restore .NET dependencies
         run: dotnet restore backend/src/src.sln
 
-      - name: Build project
+      - name: Build
         run: dotnet build backend/src/src.sln --no-restore --configuration Release
 
       - name: Run tests
