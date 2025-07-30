@@ -28,6 +28,7 @@ public class GetAllLoansQueryHandler(ILoanRepository loanRepository, ILogger<Get
             Id = loan.Id,
             ApplicantName = loan.ApplicantName,
             CurrentBalance = loan.CurrentBalance,
+            Amount = loan.Amount,
             Status = loan.Status.ToString("G")
         };
     }
