@@ -255,7 +255,7 @@ public class LoanManagementControllerTests : IClassFixture<CustomWebApplicationF
         {
             amount = 2000m,
             currentBalance = 2000m,
-            applicantName = "Pagador"
+            applicantName = "Payment User"
         };
 
         var content = new StringContent(JsonSerializer.Serialize(createLoan), Encoding.UTF8, "application/json");
