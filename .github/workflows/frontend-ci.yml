@@ -29,7 +29,7 @@ jobs:
       - name: 📦 Install dependencies with npm
         run: npm ci
 
-      - name: 🏗️ Build Angular app
+      - name: 🏗️ Build Angular App
         run: npx ng build
 
       - name: 🧪 Run unit tests (headless)
