@@ -24,10 +24,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'yarn'
+          cache: 'npm'
 
-      - name: 📦 Install dependencies with Yarn
-        run: yarn install --frozen-lockfile
+      - name: 📦 Install dependencies with npm
+        run: npm ci
 
       - name: 🏗️ Build Angular app
         run: npx ng build
