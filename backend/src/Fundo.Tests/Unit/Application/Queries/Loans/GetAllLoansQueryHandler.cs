@@ -4,14 +4,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Fundo.API.Controllers.Loans;
-using Fundo.Application.DTOs;
 using Fundo.Application.Queries.Loan.List;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Xunit;
 
-namespace Fundo.Tests.Unit.Application.Queries.Loans;
+namespace Fundo.Services.Tests.Unit.Application.Queries.Loans;
 
 public class GetAllLoansQueryHandler
 {

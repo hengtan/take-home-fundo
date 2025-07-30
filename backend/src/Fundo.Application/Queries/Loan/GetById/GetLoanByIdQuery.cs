@@ -1,4 +1,4 @@
-using Fundo.Application.DTOs;
+using System;
 using MediatR;
 
 namespace Fundo.Application.Queries.Loan.GetById;
