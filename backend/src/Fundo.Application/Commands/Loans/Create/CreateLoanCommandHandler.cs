@@ -9,7 +9,7 @@ using Unit = Fundo.Application.Common.Results.Unit;
 
 namespace Fundo.Application.Commands.Loans.Create;
 
-public class CreateLoanCommandHandler(IUnitOfWork unitOfWork, ILogger<CreateLoanCommandHandler> logger)
+public class CreateLoanCommandHandler(IUnitOfWork unitOfWork, ILogger<CreateLoanCommandHandler> logger, IHistoryRepository historyRepository)
     : IRequestHandler<CreateLoanCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CreateLoanCommand request, CancellationToken cancellationToken)
@@ -25,6 +25,16 @@ public class CreateLoanCommandHandler(IUnitOfWork unitOfWork, ILogger<CreateLoan
         var loan = CreateLoanEntity(request);
 
         var saveResult = await PersistLoanAsync(loan, cancellationToken);
+
+        var history = new History(
+            loan.Id,
+            description:"Loan Created with Amount: " + loan.Amount + " and Current Balance: " + loan.CurrentBalance +
+            "on date: " + DateTime.UtcNow,
+            created: DateTime.UtcNow
+        );
+
+        await historyRepository.AddAsync(history, cancellationToken);
+
         if (saveResult.IsFailure)
         {
             return Result<Guid>.Failure(saveResult.Error!);

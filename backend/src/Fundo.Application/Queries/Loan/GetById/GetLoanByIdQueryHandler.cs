@@ -4,7 +4,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Fundo.Application.Queries.Loan.GetById;
 
-public class GetLoanByIdQueryHandler(ILoanRepository loanRepository, ILogger<GetLoanByIdQueryHandler> logger)
+public class GetLoanByIdQueryHandler(ILoanRepository loanRepository,
+    ILogger<GetLoanByIdQueryHandler> logger)
     : IRequestHandler<GetLoanByIdQuery, LoanDetailsDto?>
 {
     public async Task<LoanDetailsDto?> Handle(GetLoanByIdQuery request, CancellationToken cancellationToken)

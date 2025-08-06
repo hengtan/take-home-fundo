@@ -32,8 +32,13 @@ namespace Fundo.Services.Tests.Unit.Application.Queries.Loans
                 .Callback(() => Console.WriteLine("Saving..."))
                 .ReturnsAsync(1);
 
+            var mockHistoryRepo = new Mock<IHistoryRepository>();
+            mockHistoryRepo.Setup(r => r.AddAsync(It.IsAny<History>(),
+                    It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
             var logger = Mock.Of<ILogger<RegisterPaymentCommandHandler>>();
-            var handler = new RegisterPaymentCommandHandler(mockUnit.Object, logger);
+            var handler = new RegisterPaymentCommandHandler(mockUnit.Object, mockHistoryRepo.Object, logger);
 
             // Act
             var result = await handler.Handle(command, CancellationToken.None);
@@ -56,8 +61,13 @@ namespace Fundo.Services.Tests.Unit.Application.Queries.Loans
             var mockUnit = new Mock<IUnitOfWork>();
             mockUnit.SetupGet(u => u.LoanRepository).Returns(mockRepo.Object);
 
+            var mockHistoryRepo = new Mock<IHistoryRepository>();
+            mockHistoryRepo.Setup(r => r.AddAsync(It.IsAny<History>(),
+                    It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
             var logger = Mock.Of<ILogger<RegisterPaymentCommandHandler>>();
-            var handler = new RegisterPaymentCommandHandler(mockUnit.Object, logger);
+            var handler = new RegisterPaymentCommandHandler(mockUnit.Object, mockHistoryRepo.Object, logger);
 
             // Act
             var result = await handler.Handle(command, CancellationToken.None);

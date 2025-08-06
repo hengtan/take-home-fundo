@@ -2,6 +2,7 @@ using Fundo.Application.Common.Errors;
 using Fundo.Application.Common.Results;
 using Fundo.Application.Errors.ErrorsMessages;
 using Fundo.Application.Interfaces;
+using Fundo.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Unit = Fundo.Application.Common.Results.Unit;
@@ -10,6 +11,7 @@ namespace Fundo.Application.Commands.Loans.RegisterPayment;
 
 public class RegisterPaymentCommandHandler(
     IUnitOfWork unitOfWork,
+    IHistoryRepository historyRepository,
     ILogger<RegisterPaymentCommandHandler> logger)
     : IRequestHandler<RegisterPaymentCommand, Result<Unit>>
 {
@@ -28,6 +30,14 @@ public class RegisterPaymentCommandHandler(
         {
             loan.RegisterPayment(request.Amount);
             await unitOfWork.CompleteAsync(cancellationToken);
+
+            var history = new History(
+                loan.Id,
+                description: $"Payment of {request.Amount} registered on {DateTime.UtcNow}",
+                created: DateTime.Now
+            );
+
+            await historyRepository.AddAsync(history, cancellationToken);
 
             logger.LogInformation("Payment of {Amount} registered successfully for LoanId: {LoanId}",
                 request.Amount, request.LoanId);

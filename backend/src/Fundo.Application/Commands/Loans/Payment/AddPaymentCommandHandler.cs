@@ -11,6 +11,7 @@ namespace Fundo.Application.Commands.Loans.Payment;
 public class AddPaymentCommandHandler(
     ILoanRepository loanRepository,
     IUnitOfWork unitOfWork,
+    IHistoryRepository historyRepository,
     ILogger<AddPaymentCommandHandler> logger)
     : IRequestHandler<AddPaymentCommand, Result<Unit>>
 {
@@ -53,6 +54,14 @@ public class AddPaymentCommandHandler(
             logger.LogInformation(
                 "Payment of {Amount} registered successfully for LoanId: {LoanId}", amount, loanId
             );
+
+            var history = new History(
+                loan.Id,
+                description:"Payment of " + amount + " registered on "+ DateTime.UtcNow,
+                created: DateTime.Now
+            );
+
+            await historyRepository.AddAsync(history, cancellationToken);
 
             return Result<Unit>.Success(Unit.Value);
         }

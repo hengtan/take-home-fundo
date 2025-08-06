@@ -13,8 +13,11 @@ public static class AddApplicationServices
     {
         services.AddDbContext<LoanDbContext>(options =>
             options.UseSqlServer(config.GetConnectionString("Default")));
+        services.AddDbContext<HistoryDbContext>(options =>
+            options.UseSqlServer(config.GetConnectionString("Default")));
 
         services.AddScoped<ILoanRepository, LoanRepository>();
+        services.AddScoped<IHistoryRepository, HistoryRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;

@@ -28,10 +28,9 @@ public class CreateLoanCommandHandlerTests
         mockUow.Setup(u => u.LoanRepository).Returns(mockLoanRepo.Object);
         mockUow.Setup(u => u.CompleteAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
-        var handler = CreateHandler(mockUow.Object);
-
         // Act
-        var handlerTuple = CreateHandler(mockUow.Object);
+        var mockHistoryRepo = new Mock<IHistoryRepository>();
+        var handlerTuple = CreateHandler(mockUow.Object, mockHistoryRepo.Object);
         var result = await handlerTuple.Handler.Handle(command, CancellationToken.None);
 
         // Assert
@@ -45,7 +44,10 @@ public class CreateLoanCommandHandlerTests
     {
         // Arrange
         var command = new CreateLoanCommand(-1000m, -1000m, "Negative");
-        var handler = CreateHandler(Mock.Of<IUnitOfWork>()).Handler;
+
+        var mockHistoryRepo = new Mock<IHistoryRepository>();
+
+        var handler = CreateHandler(Mock.Of<IUnitOfWork>(), mockHistoryRepo.Object).Handler;
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -70,7 +72,8 @@ public class CreateLoanCommandHandlerTests
         mockUow.Setup(u => u.CompleteAsync(It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Erro saving loan"));
 
-        var handler = CreateHandler(mockUow.Object);
+        var mockHistoryRepo = new Mock<IHistoryRepository>();
+        var handler = CreateHandler(mockUow.Object, mockHistoryRepo.Object);
 
         // Act
         var result = await handler.Handler.Handle(command, CancellationToken.None);
@@ -94,7 +97,8 @@ public class CreateLoanCommandHandlerTests
         mockUow.Setup(u => u.LoanRepository).Returns(mockRepo.Object);
         mockUow.Setup(u => u.CompleteAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
-        var handler = CreateHandler(mockUow.Object);
+        var mockHistoryRepo = new Mock<IHistoryRepository>();
+        var handler = CreateHandler(mockUow.Object, mockHistoryRepo.Object);
 
         // Act
         var result = await handler.Handler.Handle(command, CancellationToken.None);
@@ -117,7 +121,8 @@ public class CreateLoanCommandHandlerTests
         mockUow.Setup(u => u.LoanRepository).Returns(mockRepo.Object);
         mockUow.Setup(u => u.CompleteAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
-        var handler = CreateHandler(mockUow.Object);
+        var mockHistoryRepo = new Mock<IHistoryRepository>();
+        var handler = CreateHandler(mockUow.Object, mockHistoryRepo.Object);
 
         // Act
         var result = await handler.Handler.Handle(command, CancellationToken.None);
@@ -136,7 +141,8 @@ public class CreateLoanCommandHandlerTests
         var mockUow = new Mock<IUnitOfWork>();
         mockUow.Setup(u => u.LoanRepository).Returns((ILoanRepository)null!);
 
-        var handler = CreateHandler(mockUow.Object);
+        var mockHistoryRepo = new Mock<IHistoryRepository>();
+        var handler = CreateHandler(mockUow.Object, mockHistoryRepo.Object);
 
         // Act
         var result = await handler.Handler.Handle(command, CancellationToken.None);
@@ -164,7 +170,8 @@ public class CreateLoanCommandHandlerTests
         mockUow.Setup(u => u.LoanRepository).Returns(mockRepo.Object);
         mockUow.Setup(u => u.CompleteAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
-        var handler = CreateHandler(mockUow.Object);
+        var mockHistoryRepo = new Mock<IHistoryRepository>();
+        var handler = CreateHandler(mockUow.Object, mockHistoryRepo.Object);
 
         // Act
         var result = await handler.Handler.Handle(command, CancellationToken.None);
@@ -174,10 +181,11 @@ public class CreateLoanCommandHandlerTests
         capturedLoan!.ApplicantName.Should().Be("JOANA SILVA");
     }
 
-    private static (CreateLoanCommandHandler Handler, Mock<ILogger<CreateLoanCommandHandler>> Logger) CreateHandler(IUnitOfWork uow)
+    private static (CreateLoanCommandHandler Handler, Mock<ILogger<CreateLoanCommandHandler>> Logger)
+        CreateHandler(IUnitOfWork uow, IHistoryRepository historyRepo)
     {
         var logger = new Mock<ILogger<CreateLoanCommandHandler>>();
-        var handler = new CreateLoanCommandHandler(uow, logger.Object);
+        var handler = new CreateLoanCommandHandler(uow, logger.Object, historyRepo);
         return (handler, logger);
     }
 }
