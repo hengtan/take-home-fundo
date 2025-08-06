@@ -1,6 +1,5 @@
 using Fundo.Application.Commands.Loans.Create;
 using Fundo.Application.Commands.Loans.RegisterPayment;
-using Fundo.Application.DTOs;
 using Fundo.Application.Queries.Loan.GetById;
 using Fundo.Application.Queries.Loan.History;
 using Fundo.Application.Queries.Loan.List;
@@ -12,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Fundo.API.Controllers.Loans;
 
 [ApiController]
-// [Authorize]
+[Authorize]
 [Route("loans")]
 public class LoansController(IMediator mediator) : ControllerBase
 {
