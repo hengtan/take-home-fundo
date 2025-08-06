@@ -18,13 +18,11 @@ public class RegisterPaymentCommandHandlerTests
     {
         // Arrange
         var loanId = Guid.NewGuid();
-
         var loan = Loan.Create(loanId, 1500m, 500m, "Maria Silva");
         var command = new RegisterPaymentCommand(loan.Id, 200m);
 
         var mockLoanRepo = new Mock<ILoanRepository>();
-        mockLoanRepo
-            .Setup(r => r.GetByIdAsync(loan.Id, It.IsAny<CancellationToken>()))
+        mockLoanRepo.Setup(r => r.GetByIdAsync(loan.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(loan);
 
         var mockUow = new Mock<IUnitOfWork>();
@@ -32,7 +30,9 @@ public class RegisterPaymentCommandHandlerTests
         mockUow.Setup(u => u.CompleteAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         var mockHistoryRepo = new Mock<IHistoryRepository>();
-        var handler = CreateHandler(mockUow.Object, mockHistoryRepo.Object).Handler;
+        mockUow.Setup(u => u.HistoryRepository).Returns(mockHistoryRepo.Object);
+
+        var handler = CreateHandler(mockUow.Object).Handler;
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -56,8 +56,9 @@ public class RegisterPaymentCommandHandlerTests
         var mockUow = new Mock<IUnitOfWork>();
         mockUow.Setup(u => u.LoanRepository).Returns(mockRepo.Object);
 
-        var mockHistoryRepo = new Mock<IHistoryRepository>();
-        var handler = CreateHandler(mockUow.Object, mockHistoryRepo.Object).Handler;
+        mockUow.Setup(u => u.HistoryRepository).Returns(new Mock<IHistoryRepository>().Object);
+
+        var handler = CreateHandler(mockUow.Object).Handler;
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -72,7 +73,6 @@ public class RegisterPaymentCommandHandlerTests
     {
         // Arrange
         var loanId = Guid.NewGuid();
-
         var loan = Loan.Create(loanId, 1000m, 1000m, "John Doe");
         var command = new RegisterPaymentCommand(loan.Id, 300m);
 
@@ -85,8 +85,7 @@ public class RegisterPaymentCommandHandlerTests
         mockUow.Setup(u => u.CompleteAsync(It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("DB fail"));
 
-        var mockHistoryRepo = new Mock<IHistoryRepository>();
-        var handler = CreateHandler(mockUow.Object, mockHistoryRepo.Object).Handler;
+        var handler = CreateHandler(mockUow.Object).Handler;
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -101,7 +100,6 @@ public class RegisterPaymentCommandHandlerTests
     {
         // Arrange
         var loanId = Guid.NewGuid();
-
         var loan = Loan.Create(loanId, 1000m, 100m, "Zero Balance");
         var command = new RegisterPaymentCommand(loan.Id, 100m);
 
@@ -114,7 +112,9 @@ public class RegisterPaymentCommandHandlerTests
         mockUow.Setup(u => u.CompleteAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         var mockHistoryRepo = new Mock<IHistoryRepository>();
-        var handler = CreateHandler(mockUow.Object, mockHistoryRepo.Object).Handler;
+        mockUow.Setup(u => u.HistoryRepository).Returns(mockHistoryRepo.Object);
+
+        var handler = CreateHandler(mockUow.Object).Handler;
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -142,8 +142,7 @@ public class RegisterPaymentCommandHandlerTests
         mockUow.Setup(u => u.CompleteAsync(It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Any exception"));
 
-        var mockHistoryRepo = new Mock<IHistoryRepository>();
-        var handlerTuple = CreateHandler(mockUow.Object, mockHistoryRepo.Object);
+        var handlerTuple = CreateHandler(mockUow.Object);
 
         // Act
         var result = await handlerTuple.Handler.Handle(command, CancellationToken.None);
@@ -164,11 +163,30 @@ public class RegisterPaymentCommandHandlerTests
         );
     }
 
+    [Fact]
+    public async Task Handle_Should_ReturnFailure_WhenLoanRepositoryIsNull()
+    {
+        // Arrange
+        var command = new RegisterPaymentCommand(Guid.NewGuid(), 100m);
+
+        var mockUow = new Mock<IUnitOfWork>();
+        mockUow.Setup(u => u.LoanRepository).Returns((ILoanRepository)null!);
+
+        var handler = CreateHandler(mockUow.Object).Handler;
+
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error!.Code.Should().Be("Internal");
+    }
+
     private static (RegisterPaymentCommandHandler Handler, Mock<ILogger<RegisterPaymentCommandHandler>> Logger)
-        CreateHandler(IUnitOfWork uow, IHistoryRepository historyRepo)
+        CreateHandler(IUnitOfWork uow)
     {
         var logger = new Mock<ILogger<RegisterPaymentCommandHandler>>();
-        var handler = new RegisterPaymentCommandHandler(uow, historyRepo, logger.Object);
+        var handler = new RegisterPaymentCommandHandler(uow, logger.Object);
         return (handler, logger);
     }
 }

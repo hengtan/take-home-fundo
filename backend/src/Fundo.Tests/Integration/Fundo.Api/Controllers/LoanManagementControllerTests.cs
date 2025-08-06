@@ -435,7 +435,12 @@ public class LoanManagementControllerTests : IClassFixture<CustomWebApplicationF
 
         var items = historyJson.RootElement.EnumerateArray().ToList();
         items.Should().NotBeEmpty();
-        items.First().GetProperty("description").GetString().Should().Contain("Payment of 250");
+
+        items.Should().Contain(x =>
+            x.GetProperty("description").GetString()!.Contains("Payment of 250"));
+
+        items.Should().Contain(x =>
+            x.GetProperty("description").GetString()!.Contains("Loan Created with Amount: 700"));
     }
 
     [Fact]

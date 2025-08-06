@@ -25,29 +25,27 @@ public class RegisterPaymentAndHistoryTests
         mockRepo.Setup(r => r.GetByIdAsync(loanId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(loan);
 
-        var mockUnit = new Mock<IUnitOfWork>();
-        mockUnit.SetupGet(u => u.LoanRepository).Returns(mockRepo.Object);
-        mockUnit.Setup(u => u.CompleteAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(1);
-
         var mockHistoryRepo = new Mock<IHistoryRepository>();
-
         History? addedHistory = null;
         mockHistoryRepo.Setup(r => r.AddAsync(It.IsAny<History>(), It.IsAny<CancellationToken>()))
             .Callback<History, CancellationToken>((h, _) => addedHistory = h)
             .Returns(Task.CompletedTask);
 
+        var mockUnit = new Mock<IUnitOfWork>();
+        mockUnit.SetupGet(u => u.LoanRepository).Returns(mockRepo.Object);
+        mockUnit.SetupGet(u => u.HistoryRepository).Returns(mockHistoryRepo.Object);
+        mockUnit.Setup(u => u.CompleteAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+
         var logger = Mock.Of<ILogger<RegisterPaymentCommandHandler>>();
-        var handler = new RegisterPaymentCommandHandler(mockUnit.Object, mockHistoryRepo.Object, logger);
+        var handler = new RegisterPaymentCommandHandler(mockUnit.Object, logger);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-
         mockHistoryRepo.Verify(r => r.AddAsync(It.IsAny<History>(), It.IsAny<CancellationToken>()), Times.Once);
-
         addedHistory.Should().NotBeNull();
         addedHistory!.LoandId.Should().Be(loanId);
         addedHistory.Description.Should().Contain("Payment of 500");
@@ -65,19 +63,20 @@ public class RegisterPaymentAndHistoryTests
         mockRepo.Setup(r => r.GetByIdAsync(loanId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(loan);
 
-        var mockUnit = new Mock<IUnitOfWork>();
-        mockUnit.SetupGet(u => u.LoanRepository).Returns(mockRepo.Object);
-        mockUnit.Setup(u => u.CompleteAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(1);
-
         var mockHistoryRepo = new Mock<IHistoryRepository>();
         History? addedHistory = null;
         mockHistoryRepo.Setup(r => r.AddAsync(It.IsAny<History>(), It.IsAny<CancellationToken>()))
             .Callback<History, CancellationToken>((h, _) => addedHistory = h)
             .Returns(Task.CompletedTask);
 
+        var mockUnit = new Mock<IUnitOfWork>();
+        mockUnit.SetupGet(u => u.LoanRepository).Returns(mockRepo.Object);
+        mockUnit.SetupGet(u => u.HistoryRepository).Returns(mockHistoryRepo.Object);
+        mockUnit.Setup(u => u.CompleteAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+
         var logger = Mock.Of<ILogger<RegisterPaymentCommandHandler>>();
-        var handler = new RegisterPaymentCommandHandler(mockUnit.Object, mockHistoryRepo.Object, logger);
+        var handler = new RegisterPaymentCommandHandler(mockUnit.Object, logger);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -101,13 +100,14 @@ public class RegisterPaymentAndHistoryTests
         mockRepo.Setup(r => r.GetByIdAsync(loanId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Loan?)null);
 
-        var mockUnit = new Mock<IUnitOfWork>();
-        mockUnit.SetupGet(u => u.LoanRepository).Returns(mockRepo.Object);
-
         var mockHistoryRepo = new Mock<IHistoryRepository>();
 
+        var mockUnit = new Mock<IUnitOfWork>();
+        mockUnit.SetupGet(u => u.LoanRepository).Returns(mockRepo.Object);
+        mockUnit.SetupGet(u => u.HistoryRepository).Returns(mockHistoryRepo.Object);
+
         var logger = Mock.Of<ILogger<RegisterPaymentCommandHandler>>();
-        var handler = new RegisterPaymentCommandHandler(mockUnit.Object, mockHistoryRepo.Object, logger);
+        var handler = new RegisterPaymentCommandHandler(mockUnit.Object, logger);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);

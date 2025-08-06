@@ -11,13 +11,24 @@ namespace Fundo.Application.Commands.Loans.RegisterPayment;
 
 public class RegisterPaymentCommandHandler(
     IUnitOfWork unitOfWork,
-    IHistoryRepository historyRepository,
     ILogger<RegisterPaymentCommandHandler> logger)
     : IRequestHandler<RegisterPaymentCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(RegisterPaymentCommand request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Starting payment registration for LoanId: {LoanId}", request.LoanId);
+
+        if (unitOfWork.LoanRepository is null)
+        {
+            logger.LogError("LoanRepository is null in UnitOfWork");
+            return Result<Unit>.Failure(Error.Internal("Loan repository unavailable"));
+        }
+
+        if (unitOfWork.HistoryRepository is null)
+        {
+            logger.LogError("HistoryRepository is null in UnitOfWork");
+            return Result<Unit>.Failure(Error.Internal("History repository unavailable"));
+        }
 
         var loan = await unitOfWork.LoanRepository.GetByIdAsync(request.LoanId, cancellationToken);
         if (loan is null)
@@ -29,15 +40,16 @@ public class RegisterPaymentCommandHandler(
         try
         {
             loan.RegisterPayment(request.Amount);
-            await unitOfWork.CompleteAsync(cancellationToken);
 
             var history = new History(
                 loan.Id,
                 description: $"Payment of {request.Amount} registered on {DateTime.UtcNow}",
-                created: DateTime.Now
+                created: DateTime.UtcNow
             );
 
-            await historyRepository.AddAsync(history, cancellationToken);
+            await unitOfWork.HistoryRepository.AddAsync(history, cancellationToken);
+
+            await unitOfWork.CompleteAsync(cancellationToken);
 
             logger.LogInformation("Payment of {Amount} registered successfully for LoanId: {LoanId}",
                 request.Amount, request.LoanId);
