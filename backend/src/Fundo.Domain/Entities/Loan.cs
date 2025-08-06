@@ -18,7 +18,7 @@ public class Loan
 
     protected Loan() {}
 
-    private Loan(decimal amount, decimal currentBalance, string applicantName)
+    private Loan(Guid id, decimal amount, decimal currentBalance, string applicantName)
     {
         if (amount <= 0)
             throw new ArgumentException("Loan amount must be greater than zero.");
@@ -32,7 +32,7 @@ public class Loan
         if (string.IsNullOrWhiteSpace(applicantName))
             throw new ArgumentException("Applicant name is required.");
 
-        Id = Guid.NewGuid();
+        Id = id;
         Amount = amount;
         CurrentBalance = currentBalance;
         ApplicantName = applicantName;
@@ -40,9 +40,9 @@ public class Loan
         UpdateStatus();
     }
 
-    public static Loan Create(decimal amount, decimal currentBalance, string applicantName)
+    public static Loan Create(Guid id, decimal amount, decimal currentBalance, string applicantName)
     {
-        return new Loan(amount, currentBalance, applicantName);
+        return new Loan(id, amount, currentBalance, applicantName);
     }
 
     public void RegisterPayment(decimal amount)

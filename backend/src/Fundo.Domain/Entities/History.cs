@@ -9,10 +9,11 @@ public class History
 
     protected History() {}
 
-    public History(Guid LoanId, string description, DateTime created)
+    public History(Guid loanId, string description, DateTime created)
     {
         Id = Guid.NewGuid();
-        LoandId = LoanId;
+        LoandId = loanId;
         Description = description ?? throw new ArgumentNullException(nameof(description), "Description cannot be null.");
+        Created = created;
     }
 }

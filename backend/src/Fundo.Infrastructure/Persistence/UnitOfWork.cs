@@ -2,7 +2,7 @@ using Fundo.Application.Interfaces;
 
 namespace Fundo.Infrastructure.Persistence;
 
-public class UnitOfWork(LoanDbContext context, ILoanRepository loanRepository) : IUnitOfWork
+public class UnitOfWork(AppDbContext context, ILoanRepository loanRepository) : IUnitOfWork
 {
     public ILoanRepository LoanRepository => loanRepository;
 

@@ -11,9 +11,7 @@ public static class AddApplicationServices
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
     {
-        services.AddDbContext<LoanDbContext>(options =>
-            options.UseSqlServer(config.GetConnectionString("Default")));
-        services.AddDbContext<HistoryDbContext>(options =>
+        services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(config.GetConnectionString("Default")));
 
         services.AddScoped<ILoanRepository, LoanRepository>();

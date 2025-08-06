@@ -5,29 +5,30 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace Fundo.Infrastructure.Migrations.HistoryDb
+namespace Fundo.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddHistory : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "History",
+                name: "Histories",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     LoandId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_History", x => x.Id);
+                    table.PrimaryKey("PK_Histories", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Loan",
+                name: "Loans",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -38,11 +39,11 @@ namespace Fundo.Infrastructure.Migrations.HistoryDb
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Loan", x => x.Id);
+                    table.PrimaryKey("PK_Loans", x => x.Id);
                 });
 
             migrationBuilder.InsertData(
-                table: "Loan",
+                table: "Loans",
                 columns: new[] { "Id", "Amount", "ApplicantName", "CurrentBalance", "Status" },
                 values: new object[,]
                 {
@@ -65,10 +66,10 @@ namespace Fundo.Infrastructure.Migrations.HistoryDb
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "History");
+                name: "Histories");
 
             migrationBuilder.DropTable(
-                name: "Loan");
+                name: "Loans");
         }
     }
 }

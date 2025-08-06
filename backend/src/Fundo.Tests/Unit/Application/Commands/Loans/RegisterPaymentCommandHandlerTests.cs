@@ -17,7 +17,9 @@ public class RegisterPaymentCommandHandlerTests
     public async Task Handle_Should_ReturnSuccess_WhenLoanExistsAndPaymentIsValid()
     {
         // Arrange
-        var loan = Loan.Create(1500m, 500m, "Maria Silva");
+        var loanId = Guid.NewGuid();
+
+        var loan = Loan.Create(loanId, 1500m, 500m, "Maria Silva");
         var command = new RegisterPaymentCommand(loan.Id, 200m);
 
         var mockLoanRepo = new Mock<ILoanRepository>();
@@ -69,7 +71,9 @@ public class RegisterPaymentCommandHandlerTests
     public async Task Handle_Should_ReturnFailure_WhenCompleteFails()
     {
         // Arrange
-        var loan = Loan.Create(1000m, 1000m, "John Doe");
+        var loanId = Guid.NewGuid();
+
+        var loan = Loan.Create(loanId, 1000m, 1000m, "John Doe");
         var command = new RegisterPaymentCommand(loan.Id, 300m);
 
         var mockRepo = new Mock<ILoanRepository>();
@@ -96,7 +100,9 @@ public class RegisterPaymentCommandHandlerTests
     public async Task Handle_Should_SetLoanStatusToPaid_WhenBalanceBecomesZero()
     {
         // Arrange
-        var loan = Loan.Create(1000m, 100m, "Zero Balance");
+        var loanId = Guid.NewGuid();
+
+        var loan = Loan.Create(loanId, 1000m, 100m, "Zero Balance");
         var command = new RegisterPaymentCommand(loan.Id, 100m);
 
         var mockRepo = new Mock<ILoanRepository>();
@@ -123,7 +129,8 @@ public class RegisterPaymentCommandHandlerTests
     public async Task Handle_Should_LogError_WhenExceptionIsThrown()
     {
         // Arrange
-        var loan = Loan.Create(1000m, 1000m, "Exception Loan");
+        var loanId = Guid.NewGuid();
+        var loan = Loan.Create(loanId, 1000m, 1000m, "Exception Loan");
         var command = new RegisterPaymentCommand(loan.Id, 200m);
 
         var mockRepo = new Mock<ILoanRepository>();

@@ -4,19 +4,16 @@ using Fundo.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Fundo.Infrastructure.Migrations.HistoryDb
+namespace Fundo.Infrastructure.Migrations
 {
-    [DbContext(typeof(HistoryDbContext))]
-    [Migration("20250806204634_AddHistory")]
-    partial class AddHistory
+    [DbContext(typeof(AppDbContext))]
+    partial class AppDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,6 +28,9 @@ namespace Fundo.Infrastructure.Migrations.HistoryDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -40,7 +40,7 @@ namespace Fundo.Infrastructure.Migrations.HistoryDb
 
                     b.HasKey("Id");
 
-                    b.ToTable("History");
+                    b.ToTable("Histories");
                 });
 
             modelBuilder.Entity("Fundo.Domain.Entities.Loan", b =>
@@ -67,7 +67,7 @@ namespace Fundo.Infrastructure.Migrations.HistoryDb
 
                     b.HasKey("Id");
 
-                    b.ToTable("Loan");
+                    b.ToTable("Loans");
 
                     b.HasData(
                         new
