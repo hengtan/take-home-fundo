@@ -18,7 +18,8 @@ public class GetHistoryDetailsByLoanIdQueryHandler(
         if (historyList.Count != 0)
             return historyList.Select(h => new HistoryDetailsDto
             {
-                Description = h.Description
+                Description = h.Description,
+                Created = h.Created
             }).ToList();
         logger.LogWarning("No history found for Loan ID: {LoanId}", request.Id);
         return [];
