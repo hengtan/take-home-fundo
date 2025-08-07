@@ -1,7 +1,7 @@
 using Fundo.Application.Commands.Loans.Create;
 using Fundo.Application.Commands.Loans.RegisterPayment;
-using Fundo.Application.DTOs;
 using Fundo.Application.Queries.Loan.GetById;
+using Fundo.Application.Queries.Loan.History;
 using Fundo.Application.Queries.Loan.List;
 using Fundo.Application.RegisterPaymentRequest;
 using MediatR;
@@ -66,5 +66,16 @@ public class LoansController(IMediator mediator) : ControllerBase
             return BadRequest(new { error = result.Error });
 
         return NoContent();
+    }
+
+    [HttpGet("loan-history/{id:guid}")]
+    public async Task<ActionResult<List<HistoryDetailsDto>>> HistoryGetByLoanId(Guid id)
+    {
+        var history = await mediator.Send(new GetHistoryDetailsByLoanIdQuery(id));
+
+        if (history is null)
+            return NotFound(new { error = $"Loan with ID {id} was not found." });
+
+        return Ok(history);
     }
 }

@@ -5,12 +5,13 @@ using Fundo.Application.Interfaces;
 using Fundo.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Unit = Fundo.Application.Common.Results.Unit;
 
 namespace Fundo.Application.Commands.Loans.Create;
 
-public class CreateLoanCommandHandler(IUnitOfWork unitOfWork, ILogger<CreateLoanCommandHandler> logger)
-    : IRequestHandler<CreateLoanCommand, Result<Guid>>
+public class CreateLoanCommandHandler(
+    IUnitOfWork unitOfWork,
+    ILogger<CreateLoanCommandHandler> logger
+) : IRequestHandler<CreateLoanCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CreateLoanCommand request, CancellationToken cancellationToken)
     {
@@ -22,42 +23,46 @@ public class CreateLoanCommandHandler(IUnitOfWork unitOfWork, ILogger<CreateLoan
             return Result<Guid>.Failure(Error.Validation(ErrorMessages.LoanAmountAndBalanceMustBePositive));
         }
 
-        var loan = CreateLoanEntity(request);
-
-        var saveResult = await PersistLoanAsync(loan, cancellationToken);
-        if (saveResult.IsFailure)
+        if (unitOfWork.LoanRepository is null)
         {
-            return Result<Guid>.Failure(saveResult.Error!);
+            logger.LogError("LoanRepository is null in UnitOfWork");
+            return Result<Guid>.Failure(Error.Internal("Loan repository not configured."));
+        }
+        if (unitOfWork.HistoryRepository is null)
+        {
+            logger.LogError("HistoryRepository is null in UnitOfWork");
+            return Result<Guid>.Failure(Error.Internal("History repository not configured."));
         }
 
-        logger.LogInformation("Loan created successfully for applicant: {Applicant}, LoanId: {LoanId}",
-            loan.ApplicantName, loan.Id);
+        var loan = Loan.Create(Guid.NewGuid(), request.Amount, request.CurrentBalance, request.ApplicantName);
 
-        return Result<Guid>.Success(loan.Id);
+        await unitOfWork.LoanRepository.AddAsync(loan, cancellationToken);
+
+        var history = new History(
+            loan.Id,
+            description: $"Loan Created with Amount: {loan.Amount} and Current Balance: {loan.CurrentBalance} on date: {DateTime.UtcNow}",
+            created: DateTime.UtcNow
+        );
+
+        await unitOfWork.HistoryRepository.AddAsync(history, cancellationToken);
+
+        try
+        {
+            await unitOfWork.CompleteAsync(cancellationToken);
+
+            logger.LogInformation("Loan created successfully for applicant: {Applicant}, LoanId: {LoanId}",
+                loan.ApplicantName, loan.Id);
+            return Result<Guid>.Success(loan.Id);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to persist loan for applicant: {Applicant}", loan.ApplicantName);
+            return Result<Guid>.Failure(Error.Internal(ErrorMessages.LoanSaveInternalError));
+        }
     }
 
     private static bool IsInvalid(CreateLoanCommand request)
     {
         return request.Amount <= 0 || request.CurrentBalance < 0;
-    }
-
-    private static Loan CreateLoanEntity(CreateLoanCommand request)
-    {
-        return Loan.Create(request.Amount, request.CurrentBalance, request.ApplicantName);
-    }
-
-    private async Task<Result<Unit>> PersistLoanAsync(Loan loan, CancellationToken cancellationToken)
-    {
-        try
-        {
-            await unitOfWork.LoanRepository.AddAsync(loan, cancellationToken);
-            await unitOfWork.CompleteAsync(cancellationToken);
-            return Result<Unit>.Success(Unit.Value);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to persist loan for applicant: {Applicant}", loan.ApplicantName);
-            return Result<Unit>.Failure(Error.Internal(ErrorMessages.LoanSaveInternalError));
-        }
     }
 }

@@ -371,4 +371,90 @@ public class LoanManagementControllerTests : IClassFixture<CustomWebApplicationF
             .GetString()
             .Should().Be("Payment amount must be greater than zero.");
     }
+
+    [Fact]
+    public async Task RegisterPayment_Should_AddHistoryRecord_When_Valid()
+    {
+        if (!DatabaseHelper.IsDatabaseAvailable()) return;
+
+        var createLoan = new
+        {
+            amount = 1000m,
+            currentBalance = 1000m,
+            applicantName = "History Integration Test"
+        };
+        var content = new StringContent(JsonSerializer.Serialize(createLoan), Encoding.UTF8, "application/json");
+        var response = await _client.PostAsync("/loans", content);
+        response.EnsureSuccessStatusCode();
+        var responseBody = await response.Content.ReadAsStringAsync();
+        var loanId = JsonDocument.Parse(responseBody).RootElement.GetGuid();
+
+        var payment = new { amount = 400m };
+        var paymentContent = new StringContent(JsonSerializer.Serialize(payment), Encoding.UTF8, "application/json");
+        var payResponse = await _client.PostAsync($"/loans/{loanId}/payment", paymentContent);
+
+        payResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var historyResponse = await _client.GetAsync($"/loans/loan-history/{loanId}");
+        historyResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var historyBody = await historyResponse.Content.ReadAsStringAsync();
+        var historyJson = JsonDocument.Parse(historyBody);
+        var descriptions = historyJson.RootElement.EnumerateArray().Select(e => e.GetProperty("description").GetString()).ToList();
+
+        descriptions.Should().Contain(d => d.Contains("Payment of 400"));
+    }
+
+    [Fact]
+    public async Task GetLoanHistory_Should_ReturnHistoryList_WhenLoanExists()
+    {
+        if (!DatabaseHelper.IsDatabaseAvailable()) return;
+
+        var createLoan = new
+        {
+            amount = 700m,
+            currentBalance = 700m,
+            applicantName = "Loan History Test"
+        };
+        var content = new StringContent(JsonSerializer.Serialize(createLoan), Encoding.UTF8, "application/json");
+        var response = await _client.PostAsync("/loans", content);
+        response.EnsureSuccessStatusCode();
+        var responseBody = await response.Content.ReadAsStringAsync();
+        var loanId = JsonDocument.Parse(responseBody).RootElement.GetGuid();
+
+        var payment = new { amount = 250m };
+        var paymentContent = new StringContent(JsonSerializer.Serialize(payment), Encoding.UTF8, "application/json");
+        var payResponse = await _client.PostAsync($"/loans/{loanId}/payment", paymentContent);
+        payResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var historyResponse = await _client.GetAsync($"/loans/loan-history/{loanId}");
+        historyResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var historyBody = await historyResponse.Content.ReadAsStringAsync();
+        var historyJson = JsonDocument.Parse(historyBody);
+
+        var items = historyJson.RootElement.EnumerateArray().ToList();
+        items.Should().NotBeEmpty();
+
+        items.Should().Contain(x =>
+            x.GetProperty("description").GetString()!.Contains("Payment of 250"));
+
+        items.Should().Contain(x =>
+            x.GetProperty("description").GetString()!.Contains("Loan Created with Amount: 700"));
+    }
+
+    [Fact]
+    public async Task GetLoanHistory_Should_ReturnEmptyList_WhenLoanHasNoHistory()
+    {
+        if (!DatabaseHelper.IsDatabaseAvailable()) return;
+
+        var randomLoanId = Guid.NewGuid();
+        var historyResponse = await _client.GetAsync($"/loans/loan-history/{randomLoanId}");
+
+        historyResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var historyBody = await historyResponse.Content.ReadAsStringAsync();
+        var historyJson = JsonDocument.Parse(historyBody);
+        historyJson.RootElement.GetArrayLength().Should().Be(0);
+    }
 }

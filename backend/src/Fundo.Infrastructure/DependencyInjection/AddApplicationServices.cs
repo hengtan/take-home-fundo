@@ -11,10 +11,11 @@ public static class AddApplicationServices
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
     {
-        services.AddDbContext<LoanDbContext>(options =>
+        services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(config.GetConnectionString("Default")));
 
         services.AddScoped<ILoanRepository, LoanRepository>();
+        services.AddScoped<IHistoryRepository, HistoryRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;

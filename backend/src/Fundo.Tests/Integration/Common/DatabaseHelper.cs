@@ -28,7 +28,7 @@ public static class DatabaseHelper
     public static async Task<bool> HasAnyLoanAsync(CustomWebApplicationFactory<Program> factory)
     {
         using var scope = factory.Services.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<LoanDbContext>();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         return await context.Loans.AnyAsync();
     }
@@ -36,7 +36,7 @@ public static class DatabaseHelper
     public static async Task InitializeDatabaseAsync(CustomWebApplicationFactory<Program> factory)
     {
         using var scope = factory.Services.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<LoanDbContext>();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         await context.Database.MigrateAsync();
     }

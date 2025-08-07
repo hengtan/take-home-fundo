@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fundo.Infrastructure.Persistence.Repositories;
 
-public class LoanRepository(LoanDbContext context) : ILoanRepository
+public class LoanRepository(AppDbContext context) : ILoanRepository
 {
     public async Task AddAsync(Loan loan, CancellationToken cancellationToken)
     {
