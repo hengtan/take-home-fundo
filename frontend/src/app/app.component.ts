@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
+import {AsyncPipe, NgIf} from '@angular/common';
 
 @Component({
   selector: 'app-root',
@@ -7,8 +8,11 @@ import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
   imports: [
     RouterOutlet,
     RouterLink,
-    RouterLinkActive
+    RouterLinkActive,
+    NgIf,
+    AsyncPipe
   ],
   templateUrl: './app.component.html'
 })
-export class AppComponent {}
+export class AppComponent {
+}
