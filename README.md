@@ -101,14 +101,14 @@ The Angular frontend performs this flow automatically via `AuthService`. The tok
 
 ## 🧪 Backend: Available Endpoints
 
-| Method | Route                      | Description               |
-|--------|----------------------------|---------------------------|
-| POST   | `/api/Auth/token`          | Generate JWT token        |
-| POST   | `/loans`                   | Create new loan           |
-| GET    | `/loans`                   | Get all loans             |
-| GET    | `/loans/{id}`            | Get loan by ID            |
-| POST   | `/loans/{id}/payment`    | Register a payment        |
-
+| Method | Route                      | Description        |
+|--------|----------------------------|--------------------|
+| POST   | `/api/Auth/token`          | Generate JWT token |
+| POST   | `/loans`                   | Create new loan    |
+| GET    | `/loans`                   | Get all loans      |
+| GET    | `/loans/{id}`            | Get loan by ID     |
+| POST   | `/loans/{id}/payment`    | Register a payment |
+| GET    | `/loans/loan-history/{loanId` | Get loan history   |
 ---
 
 ## ▶️ Running Locally: Backend (API)
@@ -143,12 +143,13 @@ yarn start    # or npm start
 
 ### Frontend Features
 
-- **Login is automatic**: the app requests a JWT with the demo credentials (`fundo-app` / `dev-secret-123`) on startup.
-- **Loan list**: Shows all loans, using Angular standalone components, TailwindCSS, loading skeleton, error states.
-- **Loan details**: View full details by clicking a loan, fetches by ID.
-- **Register payment**: Submit payment for a loan.
-- **Global error handling**: HTTP errors are handled and surfaced in the UI.
-- **JWT Interceptor**: All requests send `Authorization: Bearer ...` header.
+- **Automatic login:** The app requests a JWT with demo credentials (`fundo-app` / `dev-secret-123`) on startup.
+- **Loan list:** Displays all loans, with TailwindCSS, skeleton loading, and error handling.
+- **Loan details:** Click a loan row to expand and see details instantly.
+- **View history (modal):** Click “View History” to fetch loan’s full transaction history from `/loans/loan-history/{loanId}`. The modal overlays the current screen, using Tailwind for full overlay and scroll lock. Close by clicking X or outside the modal.
+- **Register payment:** Submit a payment for a selected loan.
+- **Global error handling:** HTTP errors are handled globally and surfaced in the UI.
+- **JWT Interceptor:** All requests send `Authorization: Bearer ...` header.
 
 #### Key Files / Concepts
 
@@ -157,6 +158,7 @@ yarn start    # or npm start
 - `auth.interceptor.ts` — attaches JWT to all outgoing requests
 - `loans-list.component.ts` — shows the list (uses Angular material/table)
 - `loan-detail.component.ts` — details for a single loan
+- `history-modal.component.ts` — Standalone overlay modal
 - Uses TailwindCSS utility classes for styling and layout
 
 ---
@@ -222,3 +224,10 @@ This will start:
 - Clean UI: Angular standalone components, Tailwind, JWT login, error handling
 - Dockerized: fast local setup
 
+## 💡 Loan History Modal: User Flow
+
+1. **User opens loan list:** All loans are listed in a table.
+2. **Clicking a row:** Expands the details of the selected loan, without navigating away.
+3. **View History button:** Clicking this opens a modal overlay (centered, full screen, with backdrop), fetching and displaying the complete transaction history.
+4. **Modal features:** Tailwind-powered, closes clicking outside, disables page scroll when open.
+5. **User can act again:** Modal closes, returning focus to the expanded details view.
